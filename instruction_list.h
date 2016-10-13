@@ -56,8 +56,8 @@ typedef struct {
 /**
 *** Class which contains its own instructions and pointers to another classes.
 **/
-typedef struct class t_instr_class;
-struct class {
+typedef struct instr_class t_instr_class;
+struct instr_class {
     string *name;
     t_instr_list *instr_list;
     t_instr_class *prev_class;

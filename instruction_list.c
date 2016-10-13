@@ -16,9 +16,7 @@ int gen_instr_class(t_class_list *list, string *name, t_instr_list *instr_list) 
   if (new_class == NULL) {
     return FAILURE;
   }
-  if (strInit(new_class->name)) {
-    return FAILURE;
-  }
+
   new_class->name = name;
   new_class->prev_class = NULL;
   new_class->next_class = NULL;
@@ -87,6 +85,7 @@ void destroy_class_list(t_class_list *list) {
   while (list->first != NULL) {
     t_instr_class *elem_to_delete = list->first;
     list->first = elem_to_delete->next_class;
+    destroy_instr_list(elem_to_delete->instr_list);
     free(elem_to_delete);
   }
   list->current = NULL;
