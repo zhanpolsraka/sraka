@@ -6,99 +6,124 @@
 #define _INSTRUCTION_LIST_H_
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "str.h"
+#include "test_scanner.h"
+#include "test_table.h"
 
-#define SUCCESS 1
-#define FAILURE 0
-
-/**
-*** Operations.
-**/
-typedef enum {
-/* 0 => '=' */   ASSIGNMENT,
-/* 1 => '+' */   PLUS,
-/* 2 => '-' */   MINUS,
-/* 3 => '*' */   MUL,
-/* 4 => '/' */   DIV,
-/* 5 => '<' */   LESS,
-/* 6 => '>' */   GREATER,
-/* 7 => '<=' */   LOEQ,
-/* 8 => '>=' */   GOEQ,
-/* 9 => '!' */   NOT,
-/* 10 => '&&' */
-/* 11=> '||' */
-/* 12=> '^' */   NEQ,
-/* 13 => '++' */   INCREMENT,
-/* 14=> '--' */  DECREMENT,
-/* 15 => '%' */   MOD
-} t_operation;
+extern tClassList *g_class_list;
 
 /**
 *** Instruction which contains three-address code.
 **/
-typedef struct instruction t_instruction;
+typedef struct instruction tInstruction;
 struct instruction {
-    t_operation op;
+    int line;
+    tType op;
     void *first_address;
     void *second_address;
     void *third_address;
-    t_instruction *next;
+    tInstruction *next;
 };
+
+/**
+*** Function instance which contains its own instructions and variables.
+**/
+typedef struct function tFunction;
+struct function {
+    string *name;
+    tNode *vars;
+    tInstrList *instr_list;
+    tFunction *next_func;
+}
 
 /**
 *** Linked instruction list.
 **/
 typedef struct {
-    t_instruction *first;
-    t_instruction *current;
-} t_instr_list;
+    tInstruction *first;
+    tInstruction *current;
+} tInstrList;
 
 /**
-*** Class which contains its own instructions and pointers to another classes.
+*** Linked function list.
 **/
-typedef struct instr_class t_instr_class;
-struct instr_class {
+typedef struct {
+    tFunction *first;
+    tFunction *current;
+} tFuncList;
+
+/**
+*** Class which contains its own instructions&functions and pointers to another classes.
+**/
+typedef struct class tClass;
+struct class {
     string *name;
-    t_instr_list *instr_list;
-    t_instr_class *prev_class;
-    t_instr_class *next_class;
+    tNode *vars;
+
+    tInstrList *instr_list;
+    tFuncList *func_list;
+
+
+    tClass *prev_class;
+    tClass *next_class;
 };
 
 /**
-*** Doubly linked class list.
+*** Linked class list.
 **/
 typedef struct {
-    t_instr_class *first;
-    t_instr_class *current;
-    t_instr_class *last;
-} t_class_list;
+    tClass *first;
+    tClass *current;
+    tClass *last;
+} tClassList;
 
 /**
-*** Create a new instruction class and add it into instr. class list.
+*** Create a new instruction class and add it into global class list.
 *** WARNING: Exception handling is missing! The function returns:
-*** 1 if everything is OK
-*** 0 if something isn't OK (malloc error)
+*** true if everything is OK
+*** false if something isn't OK (malloc error)
 **/
-int gen_instr_class(t_class_list *list, string *name, t_instr_list *instr_list);
+bool gen_class(string *name);
 /**
-*** Create a new instruction and add it into instruction list.
+*** Create a new instruction and add it into current instruction list.
 *** WARNING: Exception handling is missing! The function returns:
-*** 1 if everything is OK
-*** 0 if something isn't OK (malloc error)
+*** true if everything is OK
+*** false if something isn't OK (malloc error)
 **/
-int gen_instruction(t_instr_list *list, t_operation op, void *first_addr, void *second_addr, void *third_addr);
-
+bool gen_instruction(tType operation, void *first_addr, void *second_addr, void *third_addr);
+/**
+*** Create a new function instance and add it into function list.
+*** WARNING: Exception handling is missing! The function returns:
+*** true if everything is OK
+*** false if something isn't OK (malloc error)
+**/
+bool gen_function(string *name);
 
 /**
 *** The list "methods" for classes.
 **/
-t_class_list *create_and_init_class_list();
-void destroy_class_list(t_class_list *list);
+bool create_and_init_g_class_list();
+void destroy_g_class_list();
+
+/**
+*** The list "methods" for functions.
+**/
+tFuncList *create_and_init_func_list();
+void destroy_func_list(tFuncList *list);
+
+/**
+*** Makes pointer to current function unavailable.
+*** Call it when you're out of function.
+**/
+void function_out();
 
 /**
 *** The list "methods" for instructions.
 **/
-t_instr_list *create_and_init_instr_list();
-void destroy_instr_list(t_instr_list *list);
+tInstrList *create_and_init_instr_list();
+void destroy_instr_list(tInstrList *list);
+
+
 
 #endif // _INSTRUCTION_LIST_H_
