@@ -11,12 +11,16 @@
 #include "test_scanner.h"
 #include "test_table.h"
 
-extern tClassList *g_class_list;
+typedef struct instruction tInstruction;
+typedef struct function tFunction;
+typedef struct instrList tInstrList;
+typedef struct funcList tFuncList;
+typedef struct class tClass;
+typedef struct classList tClassList;
 
 /**
 *** Instruction which contains three-address code.
 **/
-typedef struct instruction tInstruction;
 struct instruction {
     int line;
     tType op;
@@ -29,34 +33,32 @@ struct instruction {
 /**
 *** Function instance which contains its own instructions and variables.
 **/
-typedef struct function tFunction;
 struct function {
     string *name;
     tNode *vars;
     tInstrList *instr_list;
     tFunction *next_func;
-}
+};
 
 /**
 *** Linked instruction list.
 **/
-typedef struct {
+struct instrList {
     tInstruction *first;
     tInstruction *current;
-} tInstrList;
+};
 
 /**
 *** Linked function list.
 **/
-typedef struct {
+struct funcList {
     tFunction *first;
     tFunction *current;
-} tFuncList;
+};
 
 /**
 *** Class which contains its own instructions&functions and pointers to another classes.
 **/
-typedef struct class tClass;
 struct class {
     string *name;
     tNode *vars;
@@ -72,11 +74,11 @@ struct class {
 /**
 *** Linked class list.
 **/
-typedef struct {
+struct classList {
     tClass *first;
     tClass *current;
     tClass *last;
-} tClassList;
+};
 
 /**
 *** Create a new instruction class and add it into global class list.
@@ -124,6 +126,8 @@ void function_out();
 tInstrList *create_and_init_instr_list();
 void destroy_instr_list(tInstrList *list);
 
+
+extern tClassList *g_class_list;
 
 
 #endif // _INSTRUCTION_LIST_H_

@@ -46,7 +46,7 @@ bool gen_class(string *name) {
         g_class_list->last = g_class_list->first;
     }
     else {
-        t_instr_class *temp = g_class_list->current;
+        tClass *temp = g_class_list->current;
         g_class_list->current = g_class_list->last;
         g_class_list->current->next_class = new_class;
         g_class_list->current->next_class->prev_class = g_class_list->current->next_class;
@@ -90,8 +90,8 @@ bool gen_function(string *name) {
             g_class_list->current->func_list->current = g_class_list->current->func_list->first;
         }
         else {
-            g_class_list->current->func_list->current->next = new_function;
-            g_class_list->current->func_list->current = g_class_list->current->func_list->current->next;
+            g_class_list->current->func_list->current->next_func = new_function;
+            g_class_list->current->func_list->current = g_class_list->current->func_list->current->next_func;
         }
         return true;
     }
@@ -167,7 +167,7 @@ bool create_and_init_g_class_list() {
 
 void destroy_g_class_list() {
   while (g_class_list->first != NULL) {
-    t_instr_class *class_to_delete = g_class_list->first;
+    tClass *class_to_delete = g_class_list->first;
     g_class_list->first = class_to_delete->next_class;
     destroy_instr_list(class_to_delete->instr_list);
     destroy_func_list(class_to_delete->func_list);
@@ -211,7 +211,7 @@ void destroy_func_list(tFuncList *list) {
 
     while(list->first != NULL) {
         tFunction *func_to_delete = list->first;
-        list->first = func_to_delete->next;
+        list->first = func_to_delete->next_func;
         strFree(func_to_delete->name);
         destroy_instr_list(func_to_delete->instr_list);
         free(func_to_delete);
