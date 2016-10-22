@@ -6,6 +6,7 @@
 
 /**
 *** Create a new instruction class and add it into global class list.
+*** Current class is the last added class.
 *** WARNING: Exception handling is missing! The function returns:
 *** true if everything is OK
 *** false if something isn't OK (malloc error)
@@ -22,8 +23,6 @@ bool gen_class(string *name) {
     if (new_class == NULL) {
         return false;
     }
-    /* Also we need to allocate memory for its name. */
-    new_class->name = malloc(sizeof(string));
     /* DTTO for its instruction list. */
     new_class->instr_list = create_and_init_instr_list();
     if (new_class->instr_list == NULL) {
@@ -34,9 +33,10 @@ bool gen_class(string *name) {
     if (new_class->func_list == NULL) {
         return false;
     }
-    /* Inicialize it. */
-    strCopyString(new_class->name, name);
-    new_class->vars = get_node(name, VARIABLE, root)->variables;
+    /* Initialize it. */
+    strInit(&new_class->name);
+    strCopyString(&new_class->name, name);
+    /*new_class->vars = get_node(name, VARIABLE, root)->variables;*/
     new_class->prev_class = NULL;
     new_class->next_class = NULL;
     /* Now we can add it into our global class list. */
@@ -46,18 +46,18 @@ bool gen_class(string *name) {
         g_class_list->last = g_class_list->first;
     }
     else {
-        tClass *temp = g_class_list->current;
         g_class_list->current = g_class_list->last;
         g_class_list->current->next_class = new_class;
-        g_class_list->current->next_class->prev_class = g_class_list->current->next_class;
+        g_class_list->current->next_class->prev_class = g_class_list->last;
         g_class_list->last = g_class_list->last->next_class;
-        g_class_list->current = temp;
+        g_class_list->current = g_class_list->last;
     }
     return true;
 }
 
 /**
 *** Create a new function instance and add it into current function list of current class.
+*** Current function is the last added function.
 *** WARNING: Exception handling is missing! The function returns:
 *** true if everything is OK
 *** false if something isn't OK (malloc error or there is no active class)
@@ -70,19 +70,14 @@ bool gen_function(string *name) {
         if (new_function == NULL) {
             return false;
         }
-        /* We also need to allocate memory for its name. */
-        new_function->name = malloc(sizeof(string));
-        if (new_function->name == NULL) {
-            return false;
-        }
         /* DTTO for its instruction list. */
         new_function->instr_list = create_and_init_instr_list();
         if (new_function->instr_list == NULL) {
             return false;
         }
-        /* Now we inicialize it. */
-        strCopyString(new_function->name, name);
-        new_function->vars = get_node(name, VARIABLE, root)->variables;
+        /* Now we initialize it. */
+        strCopyString(&new_function->name, name);
+        /*new_function->vars = get_node(name, VARIABLE, root)->variables;*/
         new_function->next_func = NULL;
         /* So now we're adding our function into function list of current class. */
         if (g_class_list->current->func_list->first == NULL) {
@@ -104,7 +99,7 @@ bool gen_function(string *name) {
 *** true if everything is OK
 *** false if something isn't OK (malloc error or there is no active class)
 **/
-bool gen_instruction(tType operation, void *first_addr, void *second_addr, void *third_addr) {
+bool gen_instruction(tOperation operation, void *first_addr, void *second_addr, void *third_addr) {
     /* As always we need something to work with. */
     if (g_class_list->current != NULL) {
         /* Ok. Now we allocate memory for a new instruction. */
@@ -154,47 +149,34 @@ bool gen_instruction(tType operation, void *first_addr, void *second_addr, void 
 *** The list "methods" for classes.
 **/
 bool create_and_init_g_class_list() {
-
-  g_class_list = malloc(sizeof(tClassList));
-  if (g_class_list == NULL) {
-    return false;
-  }
-  g_class_list->first = NULL;
-  g_class_list->current = NULL;
-  g_class_list->last = NULL;
-  return true;
+    g_class_list = malloc(sizeof(tClassList));
+    if (g_class_list == NULL) {
+        return false;
+    }
+    g_class_list->first = NULL;
+    g_class_list->current = NULL;
+    g_class_list->last = NULL;
+    return true;
 }
 
 void destroy_g_class_list() {
-  while (g_class_list->first != NULL) {
-    tClass *class_to_delete = g_class_list->first;
-    g_class_list->first = class_to_delete->next_class;
-    destroy_instr_list(class_to_delete->instr_list);
-    destroy_func_list(class_to_delete->func_list);
-    strFree(class_to_delete->name);
-    free(class_to_delete);
-  }
-  g_class_list->current = NULL;
-  g_class_list->first = NULL;
-  g_class_list->last = NULL;
-  free(g_class_list);
+    while (g_class_list->first != NULL) {
+        tClass *class_to_delete = g_class_list->first;
+        g_class_list->first = class_to_delete->next_class;
+        destroy_instr_list(class_to_delete->instr_list);
+        destroy_func_list(class_to_delete->func_list);
+        strFree(&class_to_delete->name);
+        free(class_to_delete);
+    }
+    g_class_list->current = NULL;
+    g_class_list->first = NULL;
+    g_class_list->last = NULL;
+    free(g_class_list);
 }
 
 /**
 *** The list "methods" for functions.
 **/
-
-/**
-*** Makes pointer to current function unavailable.
-*** Call it when you're out of function.
-**/
-void function_out() {
-    if (g_class_list->current != NULL) {
-        if (g_class_list->current->func_list->current != NULL) {
-            g_class_list->current->func_list->current = NULL;
-        }
-    }
-}
 
 tFuncList *create_and_init_func_list() {
 
@@ -212,7 +194,7 @@ void destroy_func_list(tFuncList *list) {
     while(list->first != NULL) {
         tFunction *func_to_delete = list->first;
         list->first = func_to_delete->next_func;
-        strFree(func_to_delete->name);
+        strFree(&func_to_delete->name);
         destroy_instr_list(func_to_delete->instr_list);
         free(func_to_delete);
     }
