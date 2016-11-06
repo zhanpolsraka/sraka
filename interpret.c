@@ -1,44 +1,47 @@
-//TESTVAL3 := TESTVAL1 + TESTVAL2
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "str.h"
+#include "test_inst.h"
+#include "test_table.h"
+#include "test_scanner.h"
 #include "interpret.h"
-#define NUM_INST 2
 
-int main(int argc, char const *argv[])
-{
-	TInstr* Inst = malloc(NUM_INST * sizeof(*Inst));
-	Inst[0].action = I_ADD;
-	Inst[0].op1 = &TESTVAL1;
-	Inst[0].op2 = &TESTVAL2;
-	Inst[1].action = I_ASS;
-	int temp = *(Inst[0].op1) + *(Inst[0].op2);
-	Inst[1].op1 = malloc(sizeof(temp));
-	Inst[1].op2 = &temp;
+tDStack ds;
 
-	int ret; //return value, result
-	for (int i = 0; i < NUM_INST; i++) {
-		printf("STEP %d:\n", i);
-		ret = Interpret(Inst[i]);
+int execute(tInstrStack *s){
+	dStackInit(&ds);
+	for(int i = s->top; i > -1; i--) {
+		if(s->inst[i]->type == INST_INSTRUCTION && s->inst[i]->instr->op == INSTR_INSERT) {
+			printf("Found INSTR_INSERT, pushing to DStack from addr1\n"); //rm
+			void *addr = s->inst[i]->instr->addr1;
+			dStackPush(&ds, (tData *)(addr));
+		}
+		else if(s->inst[i]->type == INST_INSTRUCTION && s->inst[i]->instr->op == ASSIGNMENT) {
+			printf("--->ASSIGNMENT %d\n", s->inst[i]->instr->op); //rm
+		}
+		else if(s->inst[i]->type == INST_CLASS && !strcmp(strGetStr(s->inst[i]->name), "Main")) {
+			printf("Found class Main (instance type - [%d], name - [%s])\n", s->inst[i]->type, strGetStr(s->inst[i]->name)); //rm
+		}
+		else if(s->inst[i]->type == INST_FUNCTION && !strcmp(strGetStr(s->inst[i]->name), "run")) {
+			printf("Found proccess run (instance type - [%d], name - [%s])\n", s->inst[i]->type, strGetStr(s->inst[i]->name)); //rm
+		}
+		else if(s->inst[i]->type == INST_INSTRUCTION) {
+			printf("Found instruction with operation %d\n", s->inst[i]->instr->op); //rm
+		}
+		else if(s->inst[i]->type == INST_END_CLASS || s->inst[i]->type == INST_END_FUNCTION) {
+			printf("Found end of function/class\n"); //rm
+		}
 	}
-	printf("Result %d\n", ret);
-	return ret;
+	return 0;
 }
 
-int Interpret(TInstr inst) {
-	switch (inst.action) {
-		case I_STOP:
-			printf("Stopping...\n");
-			return 0;
-		case I_ASS:
-			printf("Assining...\n");
-			//And store the val in memory/stack so it could be accessed easily
-			return *(inst.op2); //var should be named after Inst[i].op1
-		case I_ADD:
-			printf("Add...\n");
-			return *(inst.op1) + *(inst.op2);
-		case I_SUB:
-			printf("Sub...\n");
-			return *(inst.op1) - *(inst.op2);
-	}
-	return -1;
+void dStackInit(tDStack *s) {
+	s->size = 0;
+	s->top = NULL;
+}
+
+void dStackPush(tDStack *s, tData *data) {
+	s->size++;
+	s->top = data;
 }
