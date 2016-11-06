@@ -1,0 +1,55 @@
+program -> class_list
+class_list -> class class_list
+class_list -> e
+
+class -> 'static' type var_id init_var class
+class -> def_func class
+class -> e
+
+def_func -> 'static' type func_id (arg_list) {statement_list}
+arg_list -> type var_id arg_next
+arg_list -> e
+arg_next -> , type var_id arg_next
+arg_next -> e
+
+statement_list -> statement statement_list
+statement_list -> e
+
+statement -> type var_id init_var
+statement -> var_id assignment
+statement -> print expr_list
+statement -> 'return' expression
+statement -> 'if' expression statement_list 'else' statement_list
+statement -> 'while' expression statement_list
+
+init_var -> = variable
+init_var -> = expression
+init_var -> e
+
+variable -> string
+variable -> integer
+variable -> double
+variable -> boolean
+
+assignment -> read input
+assignment -> func_id par_list
+assignment -> expression
+
+expr_list -> expression expression_next
+expr_list -> e
+expression_next -> , expression expression_next
+expression_next -> e
+
+input -> string
+input -> integer
+input -> double
+
+par_list -> parametr param_next
+par_list -> e
+param_next -> parametr param_next
+param_next -> e
+
+parametr -> variable
+parametr -> var_id
+parametr -> expression
+parametr -> func_id par_list

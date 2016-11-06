@@ -1,15 +1,13 @@
-#define I_STOP 0 
-#define I_ASS 1 
-#define I_ADD 7  
-#define I_SUB 8
-static int TESTVAL1 = 1;
-static int TESTVAL2 = 2;
+#ifndef _INTERPRET_H_
+#define _INTERPRET_H_
 
-typedef struct 
-{
-	int action;
-	int *op1;
-	int *op2;
-}TInstr;
+typedef struct {
+	int size;
+	tData *top;
+}tDStack;
 
-int Interpret(TInstr inst);
+void dStackInit(tDStack *s);
+void dStackPush(tDStack *s, tData *data);
+int execute(tInstrStack *s);
+
+#endif
