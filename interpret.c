@@ -11,6 +11,8 @@ tDStack ds;
 
 int execute(tInstrStack *s){
 	dStackInit(&ds);
+	//Fill data stack
+	printf("Fill data stack\n"); //rm
 	for(int i = 0; i <= s->top; i++) {
 		if(s->inst[i]->type == INST_INSTRUCTION && s->inst[i]->instr->op == INSTR_INSERT) {
 			printf("Found INSTR_INSERT, pushing to DStack from addr1\n"); //rm
@@ -18,10 +20,11 @@ int execute(tInstrStack *s){
 			dStackPush(&ds, (tData *)(s->inst[i]->instr->addr1));
 			dStackPrint(&ds);
 		}
-		else if(s->inst[i]->type == INST_INSTRUCTION && s->inst[i]->instr->op == ASSIGNMENT) {
-			printf("--->ASSIGNMENT %d\n", s->inst[i]->instr->op); //rm
-		}
-		else if(s->inst[i]->type == INST_CLASS && !strcmp(strGetStr(s->inst[i]->name), "Main")) {
+	}
+	//Execute instructions
+	printf("Execute instructions\n"); //rm
+	for (int i = s->top; i > -1; i--) {
+		if(s->inst[i]->type == INST_CLASS && !strcmp(strGetStr(s->inst[i]->name), "Main")) {
 			printf("Found class Main (instance type - [%d], name - [%s])\n", s->inst[i]->type, strGetStr(s->inst[i]->name)); //rm
 		}
 		else if(s->inst[i]->type == INST_FUNCTION && !strcmp(strGetStr(s->inst[i]->name), "run")) {
