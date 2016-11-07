@@ -11,7 +11,7 @@ tDStack ds;
 
 int execute(tInstrStack *s){
 	dStackInit(&ds);
-	for(int i = s->top; i > -1; i--) {
+	for(int i = 0; i <= s->top; i++) {
 		if(s->inst[i]->type == INST_INSTRUCTION && s->inst[i]->instr->op == INSTR_INSERT) {
 			printf("Found INSTR_INSERT, pushing to DStack from addr1\n"); //rm
 			//void *addr = s->inst[i]->instr->addr1;
