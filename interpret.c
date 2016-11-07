@@ -14,8 +14,9 @@ int execute(tInstrStack *s){
 	for(int i = s->top; i > -1; i--) {
 		if(s->inst[i]->type == INST_INSTRUCTION && s->inst[i]->instr->op == INSTR_INSERT) {
 			printf("Found INSTR_INSERT, pushing to DStack from addr1\n"); //rm
-			void *addr = s->inst[i]->instr->addr1;
-			dStackPush(&ds, (tData *)(addr));
+			//void *addr = s->inst[i]->instr->addr1;
+			dStackPush(&ds, (tData *)(s->inst[i]->instr->addr1));
+			dStackPrint(&ds);
 		}
 		else if(s->inst[i]->type == INST_INSTRUCTION && s->inst[i]->instr->op == ASSIGNMENT) {
 			printf("--->ASSIGNMENT %d\n", s->inst[i]->instr->op); //rm
@@ -37,11 +38,26 @@ int execute(tInstrStack *s){
 }
 
 void dStackInit(tDStack *s) {
-	s->size = 0;
-	s->top = NULL;
+	if (s != NULL) {
+		s->top = -1;
+	}
+	else {
+		//err
+	}
+}
+
+void dStackPrint(tDStack *s) {
+	for(int i = s->top; i > -1; i--) {
+		printf("N%d: type is %d, values is %d\n", i, s->arr[i]->type, s->arr[i]->value);
+	}
 }
 
 void dStackPush(tDStack *s, tData *data) {
-	s->size++;
-	s->top = data;
+	if (s != NULL && s->top < MAX_STACK) {
+		s->top++;
+		s->arr[s->top] = data;
+	}
+	else {
+		//err
+	}
 }
