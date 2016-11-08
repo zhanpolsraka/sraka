@@ -11,30 +11,39 @@ tDStack ds;
 
 int execute(tInstrStack *s){
 	dStackInit(&ds);
+	//Top of instructions of method run of class Main
+	int run = -1;
+	bool inMain = false;
 	for(int i = s->top; i > -1; i--) {
-		if(s->inst[i]->type == INST_INSTRUCTION && s->inst[i]->instr->op == INSTR_INSERT) {
-			printf("Found INSTR_INSERT, pushing to DStack\n"); //rm
-			//void *addr = s->inst[i]->instr->addr1;
-			dStackPush(&ds, (tData *)(s->inst[i]->instr->addr1));
-			dStackPrint(&ds);
+		if(s->inst[i]->type == INST_CLASS && !strCmpConstStr(s->inst[i]->name, "Main")) {
+			inMain = true;
+			continue;
 		}
-		else if(s->inst[i]->type == INST_INSTRUCTION && s->inst[i]->instr->op == ASSIGNMENT) {
-			printf("--->ASSIGNMENT %d\n", s->inst[i]->instr->op); //rm
-		}
-		else if(s->inst[i]->type == INST_CLASS && !strcmp(strGetStr(s->inst[i]->name), "Main")) {
-			printf("Found class Main (instance type - [%d], name - [%s])\n", s->inst[i]->type, strGetStr(s->inst[i]->name)); //rm
-		}
-		else if(s->inst[i]->type == INST_FUNCTION && !strcmp(strGetStr(s->inst[i]->name), "run")) {
-			printf("Found proccess run (instance type - [%d], name - [%s])\n", s->inst[i]->type, strGetStr(s->inst[i]->name)); //rm
-		}
-		else if(s->inst[i]->type == INST_INSTRUCTION) {
-			printf("Found instruction with operation %d\n", s->inst[i]->instr->op); //rm
-		}
-		else if(s->inst[i]->type == INST_END_CLASS || s->inst[i]->type == INST_END_FUNCTION) {
-			printf("Found end of function/class\n"); //rm
+		if(s->inst[i]->type == INST_FUNCTION && !strCmpConstStr(s->inst[i]->name, "run") && inMain) {
+			run = i;
+			break;
 		}
 	}
+	//Check if error occured
+	if (run == -1) {
+		//err
+		printf("Could not find run in Main, aborting execution\n");
+		return -1;
+	}
+	for(int i = run; s->inst[i]->type != INST_END_CLASS; i--) {
+		executeInst(s->inst[i]);
+	}
 	return 0;
+}
+
+//Execute single instruction
+void executeInst(tInstance *inst) {
+	if (inst->type == INST_INSTRUCTION) printf("Executing instruction with with opcode [%d]\n", inst->instr->op);
+	//----------------------------------------------------------------------------------------
+	else if (inst->type == INST_CLASS) printf("Instance class, name [%s]\n", strGetStr(inst->name));
+	else if (inst->type == INST_FUNCTION) printf("Instance func, name [%s]\n", strGetStr(inst->name));
+	else if (inst->type == INST_END_CLASS) printf("Instance END class\n");
+	else if (inst->type == INST_END_FUNCTION) printf("Instance END func\n");
 }
 
 void dStackInit(tDStack *s) {

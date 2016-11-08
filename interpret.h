@@ -10,6 +10,7 @@ typedef struct {
 void dStackInit(tDStack *s);
 void dStackPush(tDStack *s, tData *data);
 void dStackPrint(tDStack *s);
+void executeInst(tInstance *inst);
 int execute(tInstrStack *s);
 
 #endif
