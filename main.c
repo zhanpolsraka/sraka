@@ -51,11 +51,10 @@ int main()
         printf("%s\n\n", "~~~~~~~~~Symbol tree~~~~~~~~~~");
         print_tree(tree.root);
     }
-    */
     // uvolneme tabulku symbolu a seznam instrukci
 	destroy_tree(tree.root);
     // zavreme zdrojovy soubor
 	close_source();
-
+*/
     return 0;
 }
