@@ -54,21 +54,26 @@ void executeInst(tInstance *inst) {
 		}
 		//ASSIGNMENT - prirazeni hodnoty z vrcholu zasobniku DStack do promenne na adrese addr3
 		if(inst->instr->op == ASSIGNMENT) {
-			tData *tmp = dStackPop(&ds);
-			(tData *)(inst->instr->addr3) = tmp;
+			inst->instr->addr3 = dStackPop(&ds);
 			dStackPrint(&ds);
+			//print
+			if (((tData *)inst->instr->addr3)->type == INT) {
+				printf("Addr3 %d\n", ((tData *)inst->instr->addr3)->value);
+			}
+			else if (((tData *)inst->instr->addr3)->type == STRING) {
+				printf("Addr3 %s\n", ((tData *)inst->instr->addr3)->value);
+			}
+			/////////////////////
 		}
 		if(inst->instr->op == PLUS) {
 			printf("Executing plus\n");
 		}
 	}
 	//----------------------------------------------------------------------------------------
-	/*
 	else if (inst->type == INST_CLASS) printf("Instance class, name [%s]\n", strGetStr(inst->name));
 	else if (inst->type == INST_FUNCTION) printf("Instance func, name [%s]\n", strGetStr(inst->name));
 	else if (inst->type == INST_END_CLASS) printf("Instance END class\n");
 	else if (inst->type == INST_END_FUNCTION) printf("Instance END func\n");
-	*/
 }
 
 //inicializace zasobniku DStack
@@ -109,14 +114,17 @@ void dStackPush(tDStack *s, tData *data) {
 
 //Implementace instrukci pop pro zasobnik DStack
 tData *dStackPop(tDStack *s) {
+	tData *tmp;
 	if (s != NULL) {
 		if (dStackIsEmpty(&ds)) {
 			//err/realloc
 			return NULL;
 		}
 		else {
+			tmp = s->arr[s->top];
+			s->arr[s->top] = NULL; 
 			s->top--;
-			return s->arr[s->top];
+			return tmp;
 		}
 	}
 	else {
