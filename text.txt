@@ -1,13 +1,8 @@
 class Main{
-
 	static int a = 1;
-	static int b = 2;
 
 	static void run(){
 
-		int c = Main.a;
-		int d = Main.b;
-
-		int x = c + d;
+		int a = 10;
 	}
 }
