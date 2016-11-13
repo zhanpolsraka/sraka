@@ -45,4 +45,6 @@ void throw_err(tErrType err_type, int reason){
 		fprintf(stderr, " on line %d\n\n", line);
 	else
 		fprintf(stderr, "\n\n");
+	
+	exit(-1);
 }

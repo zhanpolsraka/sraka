@@ -28,25 +28,29 @@ typedef enum{
 
     COMMA,      // carka                (15)
 
-    L_VIN,      // leva hranata zavorka (25)
-    R_VIN,      // prava hranata zavorka(26)
-    KEYWORD,    // klicove slovo        (13)
-    INT,        // typ int              (20)/14
-    DOUBLE,     // typ double           (15)
-    STRING,     // typ retezec          (16)
-    VOID,       // prazdny typ          (17)
-    BOOLEAN,    // buleovsky typ        (18)
+    L_VIN,      // leva hranata zavorka (16)
 
-    ASSIGNMENT, // prirazeni            (19)
-    INCREMENT,  // incrementace         (20)
-    DECREMENT,  // decrementace         (21)
+    OR, //(17)
+    AND, // (18)
 
-    POINT,      // tecka                (22)
-    ESCSEQ,     // escape sekvence      (24)
+    R_VIN,      // prava hranata zavorka(17)
+    KEYWORD,    // klicove slovo        (18)
+    INT,        // typ int              (19)
+    DOUBLE,     // typ double           (20)
+    STRING,     // typ retezec          (21)
+    VOID,       // prazdny typ          (22)
+    BOOLEAN,    // buleovsky typ        (23)
+    SYMB,       //                      (24)
 
-    SPACE,      // mezera               (27)
-    NEW_LINE,   // novy radek           (28)
-    T_EOF		// konec souboru		(29)
+    ASSIGNMENT, // prirazeni            (25)
+    INCREMENT,  // incrementace         (26)
+    DECREMENT,  // decrementace         (27)
+
+    POINT,      // tecka                (28)
+    ESCSEQ,     // escape sekvence      (29)
+
+    SPACE,      // mezera               (30)
+    T_EOF		// konec souboru		(32)
 
 }tType;
 
@@ -69,8 +73,8 @@ typedef struct{
 
 void open_source(const char *file_name);
 void close_source();
-bool get_token(Token *token);
-bool init_token(Token *token);
+void get_token(Token *token);
+void init_token(Token *token);
 void free_token(Token *token);
 void go_back(Token *token);
 

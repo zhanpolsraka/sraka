@@ -37,7 +37,6 @@ typedef enum{
     R_NUMBER,		// cteni cisla								(2)
     R_DBNUM,		// cteni desetinneho cisla					(3)
     R_DBNUM2,		// cteni desetinneho cisla					(4)
-    R_ESCSEQ,		// cteni escape sekvence					(5)
     R_STRING,		// cteni retezce 							(6)
     R_SYM,			// cteni symbolu							(7)
     DIV_OR_COMM,	// cteni deleni nebo komentaru				(8)
@@ -47,6 +46,8 @@ typedef enum{
     LESS_OR_LOEQ,	// cteni znaku mensi nebo mensi-ravno		(12)
     GR_OR_GOEQ,		// cteni znaku vetsi nebo vetsi-ravno		(13)
     NOT_OR_NEQ,		// cteni negace nebo nonekvivalence			(14)
+	R_OR,
+	R_AND,
     STR_COMMENT,	// retezcovy komentar 						(15)
     BL_COMMENT,		// blokovy komentar 						(16)
     BL_COMMENT_2,	// konec blokoveho komentare				(17)
@@ -61,28 +62,32 @@ bool isWr = false;
 bool isD = false;
 
 /*	Funkce zapisu symbolu do atributu tokenu	*/
-int editAtt(string *s1, char c){
-	if((strAddChar(s1, c))){
+void editAtt(string *s1, char c)
+{
+	if ((strAddChar(s1, c)))
+	{
 		line++;
 		throw_err(ALLOC_ERROR, ALL_STRUCT);
-		return 1;
 	}
-	return 0;
 }
 
 /*	Nastavi soubor se ktereho scanner bude cist lexemy		*/
-void open_source(const char *file_name){
-	if((file = fopen(file_name, "r")) == NULL){
+void open_source(const char *file_name)
+{
+	if ((file = fopen(file_name, "r")) == NULL)
+	{
 		throw_err(OPEN_FILE, FILE_ERROR);
 	}
 }
 
-void close_source(){
+void close_source()
+{
 	fclose(file);
 }
 
 /*	Funce zpracovani lexemu		*/
-bool get_token(Token *token){
+void get_token(Token *token)
+{
 
 	// vymaze obsah attributu tokenu
 	if (token != NULL)
@@ -93,391 +98,477 @@ bool get_token(Token *token){
 	// stav automatu
 	sState state = R_NEW;
 
-	if(strInit(&token->attr)){
-		throw_err(ALLOC_ERROR, ALL_STRUCT);
-		return false;
-	}
-	while(1){
+	strInit(&token->attr);
+
+	while (1)
+	{
 		// precteny symbol
 		char c = getc(file);
 		// kontrola stavu
-		switch(state){
+		switch (state)
+		{
 			// novy token
 			case R_NEW:
 				// bile znaky
-				if(isspace(c)){
-					if(c == 10)			// kontrola noveho radku
+				if (isspace(c))
+				{
+					if (c == 10)			// kontrola noveho radku
 						line++;
 				}
-				// pokud jde zapis retezcu a c je zpetny slash, zacne zapis escape sekvence
-				else if(isWr && c == '\\'){
-					if(editAtt(&token->attr, c)) return false;
-					state = R_ESCSEQ;
-				}
 				// klicove slovo nebo identifikator
-				else if(isalpha(c) || c == '_' || c == '$'){
-					if(editAtt(&token->attr, c)) return false;
+				else if (isalpha(c) || c == '_' || c == '$')
+				{
+					editAtt(&token->attr, c);
 					state = R_ID_OR_KW;
 				}
 				// cele nebo desetinne cislo
-				else if(c >= 48 && c <= 57){
-					if(editAtt(&token->attr, c)) return false;
+				else if (c >= 48 && c <= 57)
+				{
+					editAtt(&token->attr, c);
 					state = R_NUMBER;
 				}
-				else if(c == '.'){
-					if(editAtt(&token->attr, c)) return false;
+				else if (c == '.')
+				{
+					editAtt(&token->attr, c);
 					token->type = POINT;
-					return true;
+					return;
 				}
-				else if(c == ','){
-					if(editAtt(&token->attr, c)) return false;
+				else if (c == ',')
+				{
+					editAtt(&token->attr, c);
 					token->type = COMMA;
-					return true;
+					return;
 				}
-				else if(c == ';'){
-					if(editAtt(&token->attr, c)) return false;
+				else if (c == ';')
+				{
+					editAtt(&token->attr, c);
 					token->type = SEMICOLON;
-					return true;
+					return;
 				}
 
-				else if(c == '('){
-					if(editAtt(&token->attr, c)) return false;
+				else if (c == '(')
+				{
+					editAtt(&token->attr, c);
 					token->type = L_PAR;
-					return true;
+					return;
 				}
 
-				else if(c == ')'){
-					if(editAtt(&token->attr, c)) return false;
+				else if (c == ')')
+				{
+					editAtt(&token->attr, c);
 					token->type = R_PAR;
-					return true;
+					return;
 				}
 
-				else if(c == '{'){
-					if(editAtt(&token->attr, c)) return false;
+				else if (c == '{')
+				{
+					editAtt(&token->attr, c);
 					token->type = L_VIN;
-					return true;
+					return;
 				}
 
-				else if(c == '}'){
-					if(editAtt(&token->attr, c)) return false;
+				else if (c == '}')
+				{
+					editAtt(&token->attr, c);
 					token->type = R_VIN;
-					return true;
+					return;
 				}
 
-				else if(c == '*'){
-					if(editAtt(&token->attr, c)) return false;
+				else if (c == '*')
+				{
+					editAtt(&token->attr, c);
 					token->type = MUL;
-					return true;
+					return;
 				}
 
-				else if(c == '"'){
-					if(isWr) isWr = false;
-					else state = R_STRING;				// cteni retezce
+				else if (c == '"')
+				{
+					if (isWr) isWr = false;
+					editAtt(&token->attr, c);
+					state = R_STRING;				// cteni retezce
 				}
 
-				else if(c == '\'') state = R_SYM;		// cteni symbolu
-				else if(c == '/') state = DIV_OR_COMM;	// deleni nebo komentar
-				else if(c == '+'){						// plus nebo incrementace
-					if(editAtt(&token->attr, c)) return false;
+				else if (c == '\'')
+				{
+					editAtt(&token->attr, c);
+					state = R_SYM;		// cteni symbolu
+				}
+
+				else if (c == '/')
+					state = DIV_OR_COMM;	// deleni nebo komentar
+
+				else if (c == '+')
+				{						// plus nebo incrementace
+					editAtt(&token->attr, c);
 					state = OP_OR_INC;
 				}
-				else if(c == '-'){						// minus nebo decrementace
-					if(editAtt(&token->attr, c)) return false;
+
+				else if (c == '-')
+				{						// minus nebo decrementace
+					editAtt(&token->attr, c);
 					state = OP_OR_DEC;
 				}
-				else if(c == '='){						// prirazeni nebo porovnani
-					if(editAtt(&token->attr, c)) return false;
+
+				else if (c == '=')
+				{						// prirazeni nebo porovnani
+					editAtt(&token->attr, c);
 					state = OP_OR_ASS;
 				}
-				else if(c == '<'){						// mensi nebo mensi-ravno
-					if(editAtt(&token->attr, c)) return false;
+
+				else if (c == '<')
+				{						// mensi nebo mensi-ravno
+					editAtt(&token->attr, c);
 					state = LESS_OR_LOEQ;
 				}
-				else if(c == '>'){						// vetsi nebo vetsi-ravno
-					if(editAtt(&token->attr, c)) return false;
+
+				else if (c == '>')
+				{						// vetsi nebo vetsi-ravno
+					editAtt(&token->attr, c);
 					state = GR_OR_GOEQ;
 				}
-				else if(c == '!'){						// negace nebo nonekvivalence
-					if(editAtt(&token->attr, c)) return false;
+
+				else if (c == '!')
+				{						// negace nebo nonekvivalence
+					editAtt(&token->attr, c);
 					state = NOT_OR_NEQ;
 				}
-				else if(c == EOF){
-					token->type = T_EOF;
-					return true;
+
+				else if (c == '|')
+				{
+					editAtt(&token->attr, c);
+					state = R_OR;
 				}
-				break;
+
+				else if (c == '&')
+				{
+					editAtt(&token->attr, c);
+					state = R_AND;
+				}
+
+				else if (c == EOF)
+				{
+					token->type = T_EOF;
+					return;
+				}
+			break;
 
 			// klicove slovo nebo identifikator
 			case R_ID_OR_KW:
 
-				if(isalnum(c) || c == '_' || c == '$' || c == '.'){
-					if(editAtt(&token->attr, c)) return false;
-				}
-				else{
+				if (isalnum(c) || c == '_' || c == '$' || c == '.')
+					editAtt(&token->attr, c);
+
+				else
+				{
 					// vraceni symbolu zpet
 					ungetc(c, file);
-					for(int i = 0; i <= NUM_KEYW; i++){
-						if (!strCmpConstStr(&token->attr, key_words[i])){
+					for (int i = 0; i <= NUM_KEYW; i++)
+					{
+						if (!strCmpConstStr(&token->attr, key_words[i]))
+						{
 							token->type = KEYWORD;
-							return true;
+							return;
 						}
 	    			}
-	    			if(!strCmpConstStr(&token->attr, "int")){
+	    			if (!strCmpConstStr(&token->attr, "int"))
+					{
 						token->type = INT;
-						return true;
+						return;
 					}
-					else if(!strCmpConstStr(&token->attr, "double")){
+					else if (!strCmpConstStr(&token->attr, "double"))
+					{
 						token->type = DOUBLE;
-						return true;
+						return;
 					}
-					else if(!strCmpConstStr(&token->attr, "String")){
+					else if (!strCmpConstStr(&token->attr, "String"))
+					{
 						token->type = STRING;
-						return true;
+						return;
 					}
-					else if(!strCmpConstStr(&token->attr, "void")){
+					else if (!strCmpConstStr(&token->attr, "void"))
+					{
 						token->type = VOID;
-						return true;
+						return;
 					}
-					else if(!strCmpConstStr(&token->attr, "bool")){
+					else if (!strCmpConstStr(&token->attr, "boolean"))
+					{
 						token->type = BOOLEAN;
-						return true;
+						return;
 					}
 	    			// jinak to bude identifikator
 	    			token->type = IDENTIFIER;
-					return true;
+					return;
 				}
-				break;
+			break;
 
 			// cislo (desetinne nebo cele)
 			case R_NUMBER:
 
-				if(c == 'e' || c == 'E'){
-					if(editAtt(&token->attr, c)) return false;
+				if (c == 'e' || c == 'E')
+				{
+					editAtt(&token->attr, c);
 					state = R_DBNUM2;
 				}
 				// pokud cislo obsahuje desetinnou tecku, nastavi cteni desetineho cisla
-				else if(c == '.'){
-					if(editAtt(&token->attr, c)) return false;
+				else if (c == '.')
+				{
+					editAtt(&token->attr, c);
 					state = R_DBNUM;
 				}
-				else if(c >= 48 && c <= 57){
-					if(editAtt(&token->attr, c)) return false;
+				else if (c >= 48 && c <= 57)
+				{
+					editAtt(&token->attr, c);
 				}
-				else if(c >= 63){
+				else if (c >= 63)
+				{
 					line++;
 					throw_err(LEX_ERROR, UNK_LEX);
-					return false;
 				}
-				else{
+				else
+				{
 					ungetc(c, file);
 					token->type = VALUE;
-					return true;
+					return;
 				}
-				break;
+			break;
 
 			// desetinne cislo (1)
 			case R_DBNUM:
 
-				if(c >= 48 && c <= 57){
-					if(editAtt(&token->attr, c)) return false;
+				if (c >= 48 && c <= 57)
+				{
+					editAtt(&token->attr, c);
 				}
-				else if(c == 'e' || c == 'E'){
-					if(editAtt(&token->attr, c)) return false;
+				else if (c == 'e' || c == 'E')
+				{
+					editAtt(&token->attr, c);
 					state = R_DBNUM2;
 				}
-				else if(c >= 63) return false;
-				else{
+				else if (c >= 63)
+					return;
+				else
+				{
 					ungetc(c, file);
 					token->type = VALUE;
-					return true;
+					return;
 				}
-				break;
+			break;
 
 			// desetinne cislo (1)
 			case R_DBNUM2:
 
-				if((c == '+' || c == '-') && !isD){
-					if(editAtt(&token->attr, c)) return false;
+				if ((c == '+' || c == '-') && !isD)
+				{
+					editAtt(&token->attr, c);
 					isD = true;
 				}
-				else if(c >= 48 && c <= 57 && isD){
-					if(editAtt(&token->attr, c)) return false;
+				else if (c >= 48 && c <= 57 && isD)
+				{
+					editAtt(&token->attr, c);
 				}
-				else if((c >= 48 && c <= 57 && !isD) || c >= 63){
+				else if ((c >= 48 && c <= 57 && !isD) || c >= 63)
+				{
 					line++;
 					throw_err(LEX_ERROR, UNK_LEX);
-					return false;
 				}
-				else{
+				else
+				{
 					ungetc(c, file);
 					token->type = VALUE;
 					isD = false;
-					return true;
+					return;
 				}
-				break;
-
-			// escape sekvence
-			case R_ESCSEQ:
-				if(c == 'n' || c == 't' || c == '\\' || c == '"'){
-					if(editAtt(&token->attr, c)) return false;
-					token->type = ESCSEQ;
-					return true;
-				}
-				else if(c >= 48 && c <= 57 && strGetLength(&token->attr) < 4){
-					if(editAtt(&token->attr, c)) return false;
-				}
-				else if(strGetLength(&token->attr) == 4){
-					ungetc(c, file);
-					token->type = ESCSEQ;
-					return true;
-				}
-				else{
-					line++;
-					throw_err(LEX_ERROR, UNK_LEX);
-					return false;
-				}
-				break;
+			break;
 
 			// retezec
 			case R_STRING:
-
-				if(c != '"'){
-					if(c == EOF){
-						line++;
-						throw_err(LEX_ERROR, UNK_LEX);
-						return false;
-					}
-					else if(c == '\\'){
-						ungetc(c, file);
-						token->type = VALUE;
-						isWr = true;						// napoveda programmu, ze jde zapis retezce
-						return true;
-					}
-					else if(editAtt(&token->attr, c)) return false;
+				if (c == EOF)
+				{
+					line++;
+					throw_err(LEX_ERROR, UNK_LEX);
 				}
-				else{
-					isWr = false;
+				else if (c == '\\')
+				{
+					editAtt(&token->attr, c);
+					isWr = true;
+				}
+				else if ((c == '"' && isWr) || c != '"')
+				{
+					if (isWr) isWr = false;
+					editAtt(&token->attr, c);
+				}
+				else
+				{
+					editAtt(&token->attr, c);
 					token->type = VALUE;
-					return true;
+					return;
 				}
-				break;
+			break;
 
 			// symbol
 			case R_SYM:
-				if(c != '\'' && strGetLength(&token->attr) < 1){
-					if(editAtt(&token->attr, c)) return false;
+				if (c != '\'' && strGetLength(&token->attr) < 2)
+				{
+					editAtt(&token->attr, c);
 				}
-				else if(c == '\'' && strGetLength(&token->attr) == 1){
+				else if (c == '\'' && strGetLength(&token->attr) == 2)
+				{
+					editAtt(&token->attr, c);
 					token->type = VALUE;
-					return true;
+					return;
 				}
-				else{
+				else
+				{
 					line++;
 					throw_err(LEX_ERROR, UNK_LEX);
-					return false;
 				}
-				break;
+			break;
 
 			// deleni nebo komentar
 			case DIV_OR_COMM:
 
-				if(c == '/') state = STR_COMMENT;
-				else if(c == '*') state = BL_COMMENT;
-				else{
+				if (c == '/') state = STR_COMMENT;
+				else if (c == '*') state = BL_COMMENT;
+				else
+				{
 					ungetc(c, file);
-					if(editAtt(&token->attr, '/')) return false;
+					editAtt(&token->attr, '/');
 					token->type = DIV;
-					return true;
+					return;
 				}
-				break;
+			break;
 
 			// plus nebo increment
 			case OP_OR_INC:
-				if(c == '+'){
-					if(editAtt(&token->attr, c)) return false;
+				if (c == '+')
+				{
+					editAtt(&token->attr, c);
 					token->type = INCREMENT;
 				}
-				else{
+				else
+				{
 					ungetc(c, file);
 					token->type = PLUS;
 				}
-				return true;
+				return;
 
 			// minus nebo decrement
 			case OP_OR_DEC:
-				if(c == '-'){
-					if(editAtt(&token->attr, c)) return false;
+				if (c == '-')
+				{
+					editAtt(&token->attr, c);
 					token->type = DECREMENT;
 				}
-				else{
+				else
+				{
 					ungetc(c, file);
 					token->type = MINUS;
 				}
-				return true;
+				return;
 
 			// prirazeni nebo porovnani
 			case OP_OR_ASS:
-				if(c == '='){
-					if(editAtt(&token->attr, c)) return false;
+				if (c == '=')
+				{
+					editAtt(&token->attr, c);
 					token->type = COMPARISON;
 				}
-				else{
+				else
+				{
 					ungetc(c, file);
 					token->type = ASSIGNMENT;
 				}
-				return true;
+				return;
 
 			// mensi nebo mensi-rovno
 			case LESS_OR_LOEQ:
-				if(c == '='){
-					if(editAtt(&token->attr, c)) return false;
+				if (c == '=')
+				{
+					editAtt(&token->attr, c);
 					token->type = LOEQ;
 				}
-				else{
+				else
+				{
 					ungetc(c, file);
 					token->type = LESS;
 				}
-				return true;
+				return;
 
 			// vetsi nebo vetsi-rovno
 			case GR_OR_GOEQ:
-				if(c == '='){
-					if(editAtt(&token->attr, c)) return false;
+				if (c == '=')
+				{
+					editAtt(&token->attr, c);
 					token->type = GOEQ;
 				}
-				else{
+				else
+				{
 					ungetc(c, file);
 					token->type = GREATER;
 				}
-				return true;
+				return;
 
 			// negace nebo nonekvivalence
 			case NOT_OR_NEQ:
-				if(c == '='){
-					if(editAtt(&token->attr, c)) return false;
+				if (c == '=')
+				{
+					editAtt(&token->attr, c);
 					token->type = NEQ;
 				}
-				else{
+				else
+				{
 					ungetc(c, file);
 					token->type = NOT;
 				}
-				return true;
+				return;
+
+			// operace nebo
+			case R_OR:
+				if (c == '|')
+				{
+					editAtt(&token->attr, c);
+					token->type = OR;
+				}
+				else
+				{
+					line++;
+					throw_err(LEX_ERROR, UNK_LEX);
+				}
+				return;
+
+			// operace nebo
+			case R_AND:
+				if (c == '&')
+				{
+					editAtt(&token->attr, c);
+					token->type = AND;
+				}
+				else
+				{
+					line++;
+					throw_err(LEX_ERROR, UNK_LEX);
+				}
+				return;
 
 			// retezcovu komentar
 			case STR_COMMENT:
-				if((int) c == 10) state = R_NEW;
-				break;
+				if ((int) c == 10)
+					state = R_NEW;
+			break;
 
 			// blokovy komentar (1)
 			case BL_COMMENT:
-				if(c == '*') state = BL_COMMENT_2;
-				break;
+				if (c == '*')
+					state = BL_COMMENT_2;
+			break;
 
 			// blokovy komentar (2)
 			case BL_COMMENT_2:
-				if(c == '/') state = R_NEW;
-				else state = BL_COMMENT;
-				break;
+				if (c == '/')
+					state = R_NEW;
+				else
+					state = BL_COMMENT;
+			break;
 		}
 	}
 }
@@ -487,18 +578,18 @@ void go_back(Token *token)
 	fseek(file, token->attr.length * (-1) , SEEK_CUR);
 }
 
-bool init_token(Token *token)
+void init_token(Token *token)
 {
-	if ((token = malloc(sizeof(Token))) == NULL)
-	{
+	if ((token = malloc(sizeof (Token))) == NULL)
 		throw_err(ALLOC_ERROR, ALL_STRUCT);
-		return false;
-	}
+
 	strInit(&token->attr);
-	return true;
+	return;
 }
+
 /*	Zniceni tokenu	*/
-void free_token(Token *token){
+void free_token(Token *token)
+{
 	strFree(&token->attr);
 	free(token);
 }

@@ -23,35 +23,30 @@ int main()
     instr_stack_init(&instr);
 
     // provadime parsing
-    if (parsing_succesful())
-    {
-        reverse_instr_stack(&instr);
-        //print_instr_stack(&instr);
-        if (make_relations(&instr))
-        {
-            execute(&instr);
-            error = false;
-        }
-    }
-    /*
-    if (!error)
-    {
-        printf("\n~~~Result: yes, all right~~~\n\n");
+    parsing();
 
-        printf("%s\n\n", "~~~~~~~~~Symbol tree~~~~~~~~~~");
-        print_tree(tree.root);
-        printf("\n");
-        printf("%s\n", "~~~~~~Instruction list~~~~~~~~" );
-        print_instr_stack(&instr);
-        printf("\n");
-    }
-    else
-    {
-        printf("Result: no, something wrong\n\n");
-        printf("%s\n\n", "~~~~~~~~~Symbol tree~~~~~~~~~~");
-        print_tree(tree.root);
-    }
-    */
+    reverse_instr_stack(&instr);
+    print_instr_stack(&instr);
+
+    printf("%s\n",     "---------------MAKE RELATIONS--------------");
+    make_relations(&instr);
+    printf("                     %s\n", "*");
+    printf("                     %s\n", "*");
+    printf("                     %s\n", "*");
+    printf("%s\n",     "------------------EXECUTE------------------");
+    printf("\n%s\n\n", "------------------OUTPUT-------------------");
+    execute(&instr);
+    printf("\n%s\n\n", "-----------------END OUTPUT----------------");
+
+    printf("\n%s\n\n", "----------------ALL RIGHT!!!---------------");
+
+    printf("%s\n\n",   "----------------SYMBOL TREE----------------");
+    print_tree(tree.root);
+    printf("\n");
+    printf("\n%s",     "--------------INSTRUCTION LIST-------------" );
+    print_instr_stack(&instr);
+    printf("\n");
+    
     // uvolneme tabulku symbolu a seznam instrukci
 	destroy_tree(tree.root);
     // zavreme zdrojovy soubor

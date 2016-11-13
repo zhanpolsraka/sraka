@@ -12,58 +12,50 @@
 #include "test_table.h"
 
 tInstrStack *main_instr_stack;
+tNode *begin;
+tNode *curr_class;
 tNode *current_arg;
 
-// создаеь инстанции в стэке
-bool create_instance(string *name, int type)
+// vytvari instance v instrukcnim listu
+void create_instance(string *name, int type)
 {
     tInstance *new_instance;
     if ((new_instance = malloc(sizeof(tInstance))) == NULL)
-    {
         throw_err(ALLOC_ERROR, ALL_STRUCT);
-        return false;
-    }
+
     if (name != NULL)
     {
         if ((new_instance->name = malloc(sizeof(string))) == NULL ||
         strInit(new_instance->name))
-        {
             throw_err(ALLOC_ERROR, ALL_STRUCT);
-            return false;
-        }
+
         strCopyString(new_instance->name, name);
     }
-    // сохраняет инфу
+    // zachova informace
     new_instance->instr = NULL;
     new_instance->type = type;
-    // кладет в стэк
-    if (!instr_stack_push(main_instr_stack, new_instance))
-        return false;
-    return true;
+    // dava na konec listu
+    instr_stack_push(main_instr_stack, new_instance);
 }
 
-// создает инструкции
-bool create_instruction(int op, void *addr1, void *addr2, void *addr3)
+// vytvari instrukci
+void create_instruction(int op, void *addr1, void *addr2, void *addr3)
 {
     tInstruction *new_instr;
 
     if ((new_instr = malloc(sizeof(tInstruction))) == NULL)
-    {
         throw_err(ALLOC_ERROR, ALL_STRUCT);
-        return false;
-    }
+
     new_instr->op = op;
 
-    // записывает строки в адресса операндов
-    // создаст новую строку для названия каждого операнда
+    // zapisuje retezce do adres operandu
+    // (vytvari novy retezec pro nazev operandu)
     if (addr1 != NULL)
     {
         string *addr1_name = NULL;
         if ((addr1_name = malloc(sizeof(string))) == NULL)
-        {
             throw_err(ALLOC_ERROR, ALL_STRUCT);
-            return false;
-        }
+
         strInit(addr1_name);
         strCopyString(addr1_name, addr1);
         new_instr->addr1 = addr1_name;
@@ -72,10 +64,8 @@ bool create_instruction(int op, void *addr1, void *addr2, void *addr3)
     {
         string *addr2_name = NULL;
         if ((addr2_name = malloc(sizeof(string))) == NULL)
-        {
             throw_err(ALLOC_ERROR, ALL_STRUCT);
-            return false;
-        }
+
         strInit(addr2_name);
         strCopyString(addr2_name, addr1);
         new_instr->addr1 = addr2_name;
@@ -88,6 +78,7 @@ bool create_instruction(int op, void *addr1, void *addr2, void *addr3)
             throw_err(ALLOC_ERROR, ALL_STRUCT);
             return false;
         }
+
         strInit(addr3_name);
         strCopyString(addr3_name, addr3);
         new_instr->addr3 = addr3_name;
@@ -95,28 +86,22 @@ bool create_instruction(int op, void *addr1, void *addr2, void *addr3)
 
     tInstance *new_inst;
     if ((new_inst = malloc(sizeof(tInstance))) == NULL)
-    {
+
         throw_err(ALLOC_ERROR, ALL_STRUCT);
-        return false;
-    }
+
     new_inst->type = INST_INSTRUCTION;
     new_inst->instr = new_instr;
 
-    if (!instr_stack_push(main_instr_stack, new_inst))
-        return false;
+    instr_stack_push(main_instr_stack, new_inst);
 
-    return true;
 }
 
 void *search_var(string *str, tNode *begin, int type);
 tData *make_data(string *str);
 
-// создаст связи в таблице символов для определенных инструкций
-bool make_relations(tInstrStack *st)
+// vytvari relaci v tabulke symbolu prislusne instrukce
+void make_relations(tInstrStack *st)
 {
-    tNode *begin;
-    tNode *curr_class;
-
     for (int i = st->top; i > -1; i--)
     {
         if (st->inst[i]->type == INST_CLASS)
@@ -138,16 +123,13 @@ bool make_relations(tInstrStack *st)
         if (st->inst[i]->type != INST_INSTRUCTION)
             continue;
 
-        if (st->inst[i]->instr->op == INSTR_INSERT)
+        if (instr->op == INSTR_INSERT)
         {
             if (is_id(instr->addr1))
             {
                 instr->addr1 = search_var(instr->addr1, begin, VARIABLE);
                 if (instr->addr1 == NULL)
-                {
                     throw_err(SEM_ERROR, UNDEF_VAR);
-                    return false;
-                }
             }
             else
             {
@@ -155,26 +137,21 @@ bool make_relations(tInstrStack *st)
             }
         }
 
-        if (st->inst[i]->instr->op == ASSIGNMENT)
+        else if (instr->op == ASSIGNMENT)
         {
             instr->addr3 = search_var(instr->addr3, begin, VARIABLE);
             if (instr->addr3 == NULL)
-            {
                 throw_err(SEM_ERROR, UNDEF_VAR);
-                return false;
-            }
         }
 
-        if (st->inst[i]->instr->op == INSTR_ASS_ARG)
+        else if (instr->op == INSTR_ASS_ARG)
         {
             // najdeme uzel s funkci
-            tNode *func = search_var(instr->addr3, begin, FUNCTION);
+            tNode *func = search_var(instr->addr3, curr_class, FUNCTION);
             if (func == NULL)
-            {
                 throw_err(SEM_ERROR, UNDEF_FUNC);
-                return false;
-            }
 
+            // najdeme argument ve funkci
             if (current_arg == NULL)
                 current_arg = get_argument(func->variables, 1);
             else
@@ -182,52 +159,206 @@ bool make_relations(tInstrStack *st)
 
             // zavolali vetsi pocet argumentu, nez ktery funkce zpracovava
             if (current_arg == NULL)
-            {
                 throw_err(SEM_ERROR, CALL_FUNC_ARG);
-                return false;
-            }
+
             instr->addr3 = &current_arg->data;
         }
 
-        if (st->inst[i]->instr->op == INSTR_CALL_FUNC)
+        else if (instr->op == INSTR_CALL_FUNC)
         {
-            bool full_id = false;
-            if (strchr(strGetStr(instr->addr3), '.') != NULL)
-                full_id = true;
-            // najdeme uzel s funkci
-            tNode *func = search_var(instr->addr3, curr_class, FUNCTION);
-            if (func == NULL)
-            {
-                throw_err(SEM_ERROR, UNDEF_FUNC);
-                return false;
-            }
+            proc_call_func(st, instr);
+        }
 
-            // skontrolujeme jestli jsou predane funkci vsechny mozne argumenty
-            if (current_arg && func->data.value.integer > current_arg->argument)
-            {
-                throw_err(SEM_ERROR, CALL_FUNC_ARG);
-                return false;
-            }
-            // jinak nastavime ukazatel na nulu pro budouci zpracovani pomoci neho
-            else
-                current_arg = NULL;
-
-            if (full_id)
-            {
-                // najdeme uzel s tridou
-                instr->addr2 = search_var(instr->addr3, NULL, CLASS);
-                if (instr->addr2 == NULL)
-                {
-                    throw_err(SEM_ERROR, UNDEF_CLASS);
-                    return false;
-                }
-            }
-            else
-                instr->addr2 = curr_class;
-            instr->addr3 = func;
+        else if (instr->op >= INSTR_IF && instr->op <= INSTR_WHILE)
+        {
+            proc_ride_struct(st, instr, i);
         }
     }
-    return true;
+}
+
+void proc_call_func(tInstrStack *st, tInstruction *instr)
+{
+    char *ptr = NULL;
+    int *indx;
+    if ((indx = malloc(sizeof(int))) == NULL)
+        throw_err(ALLOC_ERROR, ALL_STRUCT);
+    *indx = -1;
+
+    string *class_name;
+    string *func_name;
+    // vyhleda index zacatku tridy a potom funkci
+    if ((ptr = strchr(strGetStr(instr->addr3), '.')) != NULL)
+    {
+        if ((func_name = malloc(sizeof(string))) == NULL)
+            throw_err(ALLOC_ERROR, ALL_STRUCT);
+        strInit(func_name);
+        // rozdeli nazev funkci od nazvu tridy
+        for (char *i = ptr + 1; *i; i++)
+        {
+            strAddChar(func_name, *i);
+            *(i - 1) = 0;
+        }
+        class_name = instr->addr3;
+    }
+    else
+    {
+        class_name = &curr_class->key;
+        func_name = instr->addr3;
+    }
+    // vyhleda instrukce zacatku tridy
+    int i = st->top;
+    while (i > -1)
+    {
+        if (st->inst[i]->type == INST_CLASS &&
+            equal_str(st->inst[i]->name->str, class_name->str))
+        {
+            *indx = i;
+            break;
+        }
+        i--;
+    }
+    if (*indx == -1)
+        throw_err(SEM_ERROR, UNDEF_CLASS);
+
+    // vyhleda zacatek funkci
+    int old_indx = *indx;
+    while (i > -1)
+    {
+        if (st->inst[i]->type == INST_FUNCTION &&
+            equal_str(st->inst[i]->name->str, func_name->str))
+        {
+            *indx = i;
+            break;
+        }
+        i--;
+    }
+    if (*indx == old_indx)
+        throw_err(SEM_ERROR,UNDEF_FUNC);
+    *indx = *indx -1;
+    instr->addr3 = indx;
+}
+
+void proc_ride_struct(tInstrStack *st, tInstruction *instr, int beg_indx)
+{
+    int *indx;
+    if ((indx = malloc(sizeof(int))) == NULL)
+        throw_err(ALLOC_ERROR, ALL_STRUCT);
+    *indx = -1;
+
+    int opened_blocks = 1;
+    int i = beg_indx - 1;
+
+    if (instr->op == INSTR_IF)
+    {
+        // ziskame konec bloku if
+        while (i > 0 && opened_blocks)
+        {
+            if (st->inst[i]->type == INST_INSTRUCTION &&
+                (st->inst[i]->instr->op == INSTR_IF ||
+                st->inst[i]->instr->op == INSTR_ELSE))
+                opened_blocks++;
+
+            if (st->inst[i]->type == INST_INSTRUCTION &&
+                st->inst[i]->instr->op == INSTR_END_BLCK)
+                opened_blocks--;
+
+            if (!opened_blocks)
+                *indx = i;
+            i--;
+        }
+        // index konce bloku if
+        instr->addr1 = indx;
+        // pokud pristi instrukce else
+        // ziskame indexy zacatku a konce bloku
+        if (st->inst[*indx-1]->type == INST_INSTRUCTION &&
+            st->inst[*indx-1]->instr->op == INSTR_ELSE)
+        {
+            int *indx2;
+            if ((indx2 = malloc(sizeof(int))) == NULL)
+                throw_err(ALLOC_ERROR, ALL_STRUCT);
+            // index zacatku bloku else
+            *indx2 = *indx - 1;
+            instr->addr2 = indx2;
+            // ziskame index konci bloku else
+            int *indx3;
+            if ((indx3 = malloc(sizeof(int))) == NULL)
+                throw_err(ALLOC_ERROR, ALL_STRUCT);
+
+            i = *indx2 - 1;
+            opened_blocks++;
+            while (i > 0 && opened_blocks)
+            {
+                if (st->inst[i]->type == INST_INSTRUCTION &&
+                    (st->inst[i]->instr->op == INSTR_IF ||
+                    st->inst[i]->instr->op == INSTR_ELSE))
+                    opened_blocks++;
+
+                if (st->inst[i]->type == INST_INSTRUCTION &&
+                    st->inst[i]->instr->op == INSTR_END_BLCK)
+                    opened_blocks--;
+
+                if (!opened_blocks)
+                    *indx3 = i;
+                i--;
+            }
+            // index konci bloku else
+            instr->addr3 = indx3;
+        }
+        else
+        {
+            instr->addr2 = NULL;
+            instr->addr3 = NULL;
+        }
+    }
+    else if (instr->op == INSTR_WHILE)
+    {
+        // ziskame index zacatku podminky
+        while (st->inst[i]->instr->op != INSTR_BEG_COND)
+            i++;
+        *indx = i;
+        // index zacatku podminky
+        instr->addr1 = indx;
+        // ziskame index konce bloku while
+        int *indx2;
+        if ((indx2 = malloc(sizeof(int))) == NULL)
+            throw_err(ALLOC_ERROR, ALL_STRUCT);
+        i = beg_indx - 1;
+        while (i > 0 && opened_blocks)
+        {
+            if (st->inst[i]->type == INST_INSTRUCTION &&
+                (st->inst[i]->instr->op == INSTR_IF ||
+                st->inst[i]->instr->op == INSTR_ELSE))
+                opened_blocks++;
+
+            if (st->inst[i]->type == INST_INSTRUCTION &&
+                st->inst[i]->instr->op == INSTR_END_BLCK)
+                opened_blocks--;
+
+            if (!opened_blocks)
+                *indx2 = i;
+            i--;
+        }
+        // index konci bloku while
+        instr->addr2 = indx2;
+    }
+    else if (instr->op == INSTR_BREAK)
+    {
+        // ziskame index zacatku bloku while
+        while (st->inst[i]->instr->op != INSTR_WHILE)
+            i++;
+        // vezmeme index konci bloku while
+        *indx = *(int *)st->inst[i]->instr->addr2;
+        instr->addr1 = indx;
+    }
+    else if (instr->op == INSTR_CONTINUE)
+    {
+        // ziskame index zacatku bloku while
+        while (st->inst[i]->instr->op != INSTR_WHILE)
+            i++;
+        // vezmeme index podminky bloku while
+        *indx = *(int *)st->inst[i]->instr->addr1;
+        instr->addr1 = indx;
+    }
 }
 
 void *search_var(string *str, tNode *begin, int type)
@@ -242,10 +373,7 @@ void *search_var(string *str, tNode *begin, int type)
         ptr = strchr(strGetStr(str), '.');
 
         if ((var_name = malloc(sizeof(string))) == NULL)
-        {
             throw_err(ALLOC_ERROR, ALL_STRUCT);
-            return NULL;
-        }
         strInit(var_name);
 
         for (char *i = ptr + 1; *i != '\0'; i++)
@@ -253,12 +381,10 @@ void *search_var(string *str, tNode *begin, int type)
             strAddChar(var_name, *i);
             *(i - 1) = 0;
         }
+
         tNode *class = get_node(str, CLASS, NULL);
         if (class == NULL)
-        {
             throw_err(SEM_ERROR, UNDEF_CLASS);
-            return NULL;
-        }
         else
         {
             if (type == VARIABLE)
@@ -272,21 +398,19 @@ void *search_var(string *str, tNode *begin, int type)
         if (type == VARIABLE)
             found = get_node(str, VARIABLE, begin->variables);
         else if (type == FUNCTION)
-            found = get_node(str, FUNCTION, begin->functions);
-        else if (type == CLASS)
-            found = get_node(str, CLASS, NULL);
-        else
         {
-            throw_err(SEM_ERROR, ILLEGAL_OP);
-            return NULL;
+            //print_tree();
+            found = get_node(str, FUNCTION, begin->functions);
         }
+        else
+            throw_err(SEM_ERROR, ILLEGAL_OP);
     }
 
     if (found == NULL)
         return NULL;
     else if (type == VARIABLE)
         return &found->data;
-    else if (type == FUNCTION || type == CLASS)
+    else if (type == FUNCTION)
         return found;
     else
         return NULL;
@@ -307,29 +431,71 @@ tData *make_data(string *str)
         case INT:;
             new->value.integer = atoi(strGetStr(str));
         break;
+
+        case DOUBLE:;
+            new->value.real = atof(strGetStr(str));
+        break;
+
+        case STRING:;
+            // zbavi se apostrofy a prepise retezec
+            for (int i = 1; i < str->length - 1; i++)
+            {
+                str->str[i - 1] = str->str[i];
+            }
+
+            str->str[str->length - 1] = 0;
+            str->str[str->length - 2] = 0;
+            str->length -= 2;
+
+            strInit(&new->value.str);
+            strCopyString(&new->value.str, str);
+        break;
+
+        case BOOLEAN:;
+            if (!strcmp(strGetStr(str), "\"true\""))
+                new->value.boolean = true;
+            else
+                new->value.boolean = false;
+        break;
+
+        case SYMB:;
+            // zbavi se apostrofy a prepise symbol
+            str->str[0] = str->str[1];
+
+            str->str[str->length - 1] = 0;
+            str->str[str->length - 2] = 0;
+            str->length -= 2;
+
+            strInit(&new->value.str);
+            strCopyString(&new->value.str, str);
+        break;
     }
     return new;
 }
 
 bool is_id(string *str)
 {
-    if (get_type(str) != -1 && strchr(strGetStr(str), '.') == NULL)
-        return false;
+    if (get_type(str) == -1 && (isalpha(str->str[0]) ||
+        str->str[0] == '_' || str->str[0] == '$'))
+            return true;
     else
-        return true;
+        return false;
 }
 
 int get_type(string *str)
 {
     if (is_integer(str))
         return INT;
-    else if (is_string(str))
-         return STRING;
-    else if (is_double(str))
-        return DOUBLE;
     else if (is_boolean(str))
         return BOOLEAN;
-    return -1;
+    else if (is_string(str))
+        return STRING;
+    else if (is_double(str))
+        return DOUBLE;
+    else if (is_symb(str))
+        return SYMB;
+    else
+        return -1;
 }
 
 bool is_integer(string *string)
@@ -344,7 +510,8 @@ bool is_integer(string *string)
 
 bool is_double(string *string)
 {
-    if (strchr(strGetStr(string), '.') != NULL)
+    if (strchr(strGetStr(string), '.') != NULL &&
+        strGetLength(string) != 1 && isdigit(string->str[0]))
         return true;
     else
         return false;
@@ -352,8 +519,17 @@ bool is_double(string *string)
 
 bool is_string(string *string)
 {
-    char *str = strGetStr(string);
+    char *str = string->str;
     if (*str == '"' && str[string->length - 1] == '"')
+        return true;
+    else
+        return false;
+}
+
+bool is_symb(string *string)
+{
+    char *str = strGetStr(string);
+    if (*str == '\'' && str[string->length - 1] == '\'')
         return true;
     else
         return false;
@@ -361,14 +537,14 @@ bool is_string(string *string)
 
 bool is_boolean(string *string)
 {
-    if (strcmp(strGetStr(string), "true") == 0 ||
-        strcmp(strGetStr(string), "false") == 0)
+    if (!strCmpConstStr(string, "\"true\"") ||
+        !strCmpConstStr(string, "\"false\""))
         return true;
     else
         return false;
 }
 
-bool reverse_instr_stack(tInstrStack *st)
+void reverse_instr_stack(tInstrStack *st)
 {
     tInstance *help;
     int top = st->top;
@@ -380,25 +556,20 @@ bool reverse_instr_stack(tInstrStack *st)
         st->inst[bottom++] = st->inst[top];
         st->inst[top--] = help;
     }
-    return true;
 }
 
 /*	Inicializace zasobniku	*/
-bool instr_stack_init(tInstrStack *st)
+void instr_stack_init(tInstrStack *st)
 {
     main_instr_stack = st;
 	main_instr_stack->top = -1;
 	main_instr_stack->size = 10;
 	if ((main_instr_stack->inst = malloc(main_instr_stack->size * sizeof(tInstruction *))) == NULL)
-    {
 		throw_err(ALLOC_ERROR, ALL_STRUCT);
-		return false;
-	}
-	return true;
 }
 
 /*	Funkce uklada data na vrchol zasobniku	*/
-bool instr_stack_push(tInstrStack *st, tInstance *data)
+void instr_stack_push(tInstrStack *st, tInstance *data)
 {
 	if (!instr_stack_full(st))
     {
@@ -409,14 +580,10 @@ bool instr_stack_push(tInstrStack *st, tInstance *data)
     {
 		st->size += 1;
 		if ((st->inst = realloc(st->inst, st->size * sizeof(tInstance *))) == NULL)
-        {
 			throw_err(ALLOC_ERROR, ALL_STRUCT);
-			return false;
-		}
-		if (!instr_stack_push(st, data))
-			return false;
+
+        instr_stack_push(st, data);
 	}
-	return true;
 }
 
 /*	Funkce odstrani polozku z vrcholu zasobniku a vrati ukazatel na nej 	*/
@@ -465,6 +632,25 @@ void instr_free_stack(tInstrStack *st)
 	free(st);
 }
 
+char *name_inst[] =
+{
+    0,
+    "PLUS", "MINUS", "MUL", "DIV",
+    0, 0, 0, 0, "COMPARISON", "LESS",
+    "GREATER", "LOEQ", "GOEQ", "NEQ",
+    "NOT", 0, 0, "OR", "AND", 0, 0, 0,
+    0, 0, 0, 0, 0, "ASSIGNMENT", "INCREMENT",
+    "DECREMENT", 0, 0, 0, 0, "INSTR_CALL_FUNC",
+    "INSTR_RETURN", "INSTR_ASS_ARG", "INSTR_INSERT",
+    "INSTR_MOD", "INSTR_INC", "INSTR_DEC",
+    "INSTR_BEG_COND", "INSTR_IF", "INSTR_ELSE",
+    "INSTR_CONTINUE", "INSTR_BREAK",
+    "INSTR_WHILE", "INSTR_END_BLCK", "INSTR_PRINT",
+    "INSTR_R_INT", "INSTR_R_DOUBLE", "INSTR_R_STRING",
+    "INSTR_LENGTH", "INSTR_SUBSTR", "INSTR_COMPARE",
+    "INSTR_SORT"
+};
+
 void print_instr_stack(tInstrStack *st)
 {
     printf("\n\n");
@@ -481,7 +667,7 @@ void print_instr_stack(tInstrStack *st)
         }
         else if (st->inst[i]->type == INST_INSTRUCTION)
         {
-            printf("instruction with operation %d\n", st->inst[i]->instr->op);
+            printf("instruction with operation %d -> %s\n", st->inst[i]->instr->op, name_inst[st->inst[i]->instr->op]);
         }
         else if (st->inst[i]->type == INST_END_CLASS)
         {

@@ -1,4 +1,7 @@
+#include <stdbool.h>
 #include "str.h"
+#include "test_error.h"
+
 //jednoducha knihovna pro praci s nekonecne dlouhymi retezci
 
 #define STR_LEN_INC 8
@@ -13,7 +16,7 @@ int strInit(string *s)
 // funkce vytvori novy retezec
 {
    if ((s->str = (char*) malloc(STR_LEN_INC)) == NULL)
-      return STR_ERROR;
+      throw_err(ALLOC_ERROR, ALL_STRUCT);
    s->str[0] = '\0';
    s->length = 0;
    s->allocSize = STR_LEN_INC;
@@ -40,7 +43,7 @@ int strAddChar(string *s1, char c)
    {
       // pamet nestaci, je potreba provest realokaci
       if ((s1->str = (char*) realloc(s1->str, s1->length + STR_LEN_INC)) == NULL)
-         return STR_ERROR;
+         throw_err(ALLOC_ERROR, ALL_STRUCT);
       s1->allocSize = s1->length + STR_LEN_INC;
    }
    s1->str[s1->length] = c;
@@ -49,28 +52,20 @@ int strAddChar(string *s1, char c)
    return STR_SUCCESS;
 }
 
-// int strAddStr(string *s1, string *s2)
-// {
-//     printf("string -> %s\n", strGetStr(s1));
-//     printf("string -> %s\n", strGetStr(s2));
-//
-//     s1->str = &s1->str[1];
-//     s1->str[s1->length-2] = 0;
-//     s1->length -= 2;
-//
-//     s2->str = &s2->str[1];
-//     s2->str[s1->length-2] = 0;
-//     s2->length -= 2;
-//
-//     s1->length += s2->length;
-//     if ((s1->str = (char*) realloc(s1->str, s1->length)) == NULL)
-//        return STR_ERROR;
-//
-//     printf("string -> %s\n", strGetStr(s1));
-//     printf("string -> %s\n", strGetStr(s2));
-//     return STR_SUCCESS;
-//
-// }
+int strWriteStr(string *s1, char *str)
+{
+    while (*str)
+    {
+        strAddChar(s1, *str);
+        str++;
+    }
+    return STR_SUCCESS;
+}
+
+bool equal_str(char *s1, char *s2)
+{
+     return !strcmp(s1, s2);
+}
 
 int strCopyString(string *s1, string *s2)
 // prekopiruje retezec s2 do s1
@@ -80,7 +75,7 @@ int strCopyString(string *s1, string *s2)
    {
       // pamet nestaci, je potreba provest realokaci
       if ((s1->str = (char*) realloc(s1->str, newLength + 1)) == NULL)
-         return STR_ERROR;
+         throw_err(ALLOC_ERROR, ALL_STRUCT);
       s1->allocSize = newLength + 1;
    }
    strcpy(s1->str, s2->str);

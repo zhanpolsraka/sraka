@@ -1,10 +1,19 @@
-class Main{
+class Test{
 	static int a = 1;
 	static int b = 2;
+}
+
+class Main{
+	static int a = Test.a;
+	static int b = Test.b;
 	static int c = 3;
+		static void t(){
+		
+	}
 	static void run(){
 		int a = 10;
 		int b = Main.b;
 		int c = Main.c;
+		Main.t();
 	}
 }

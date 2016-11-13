@@ -37,7 +37,7 @@ typedef struct t_node{
 		struct t_node *functions;	// pro tridy
 	};
 
-	// ve funkci obsahuje typ navratove hodnoty,
+	// ve funkci obsahuje typ navratove hodnoty a pocet argumentu,
 	// v promennych obsahuje typ a hodnotu promenne,
 	tData data;
 
@@ -58,10 +58,10 @@ typedef struct{
 }tTree;
 
 void tree_init(tTree *new_tree);
-bool create_arg(string *id, int type);
-bool add_arg(tNode *arg, tNode *begin);
-bool create_node(string *id, NodeType type, int v_type, bool stat);
-bool add_node(tNode *new, tNode *begin);
+void create_arg(string *id, int type);
+void add_arg(tNode *arg, tNode *begin);
+void create_node(string *id, NodeType type, int v_type, bool stat);
+void add_node(tNode *new, tNode *begin);
 tNode *get_node(string *key, NodeType type, tNode *begin);
 void destroy_tree(tNode *begin);
 tNode *get_argument(tNode *function, int number);
