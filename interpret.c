@@ -5,49 +5,66 @@
 #include "test_inst.h"
 #include "test_table.h"
 #include "test_scanner.h"
+#include "test_error.h"
 #include "interpret.h"
 
 tDStack ds;
 
 int execute(tInstrStack *s) {
-	dStackInit(&ds);
-	int run = -1;	//misto vyskytu prvni instrukci funkce run() tridy Main
-	//pomocne promenne
+	//pomocne flagy
+	bool inFunc = false;
 	bool inMain = false;
+	int run = -1;
+	int endRun = -1;
+	//inicializace DStack
+	dStackInit(&ds);
+	//exekuce instrukci mimo funkci a zaroven nalezeni instrukci funkci run()
 	for(int i = s->top; i > -1; i--) {
-		/*Delete this later - for debugging purposes*/
-		if (s->inst[i]->type == INST_CLASS) printf("Instance class, name [%s]\n", strGetStr(s->inst[i]->name));
-		else if (s->inst[i]->type == INST_FUNCTION) printf("Instance func, name [%s]\n", strGetStr(s->inst[i]->name));
-		else if (s->inst[i]->type == INST_END_CLASS) printf("Instance END class\n");
-		else if (s->inst[i]->type == INST_END_FUNCTION) printf("Instance END func\n");
-		/**/
-
-		//exekuce instrukci INSERT
-		if(s->inst[i]->type == INST_INSTRUCTION && s->inst[i]->instr->op == INSTR_INSERT) {
-			executeInstr(s->inst[i]->instr);
-		}
+		printf("STEP 1 - non-func instructions\n");
 		//nalezeni instrukci tridy Main
 		if(s->inst[i]->type == INST_CLASS && !strCmpConstStr(s->inst[i]->name, "Main")) {
-			inMain = true;	//nastaveni pomocne promenne
+			printf("Found Main\n");
+			inMain = true;
 		}
-		//nalezeni instrukci run()
-		if(s->inst[i]->type == INST_FUNCTION && !strCmpConstStr(s->inst[i]->name, "run") && inMain) {
-			run = i;
+		//nalezeni konce instrukci tridy Main
+		if(s->inst[i]->type == INST_END_CLASS && inMain) {
+			printf("Got out of Main\n");
+			inMain = false;
+		}	
+		//nalezeni zacatku instrukci run()
+		if(s->inst[i]->type == INST_FUNCTION) {
+			printf("Got in function - ignore instructions until I get out\n");
+			inFunc = true;
+			if (!strCmpConstStr(s->inst[i]->name, "run") && inMain) {
+				printf("Found run()\n");
+				run  = i;
+			}
 		}
-	}
-	//osetreni chyby NORUNF
-	if (run == -1) {
-		//err
-		printf("Could not find run in Main, aborting execution\n");
-		return -1;
-	}
-	//exekuce instrukci run()
-	dStackReverse(&ds);
-	for(int i = run; s->inst[i]->type != INST_END_FUNCTION; i--) {
-		if (s->inst[i]->type == INST_INSTRUCTION && s->inst[i]->instr->op != INSTR_INSERT) executeInstr(s->inst[i]->instr);
-	}
+		//nalezeni konce instrukci run()
+		if(s->inst[i]->type == INST_END_FUNCTION) {
+			printf("Got out of function\n");
+			inFunc = false;
+			if (run > -1 && endRun == -1 && inMain) {
+				printf("Got out of run()\n");
+				endRun = i;
+			}
+		}
+		//exekuce instrukci mimo funkci
+		if(s->inst[i]->type == INST_INSTRUCTION && !inFunc) executeInstr(s->inst[i]->instr); 
 
-	//exekuce ostatnich instrukci - TODO
+	}
+	//osetreni chybnosti run() v Mainu
+	printf("STEP 2 - validating existance of run() in Main\n");
+	if (run == -1 || endRun == -1) {
+		printf("No run() in Main found, aborting execution\n");
+		return INT_ERROR;
+	}
+	//exekuce instrukci funkci run()
+	printf("STEP 3 - executing run() instructions\n");
+	for(int i = run; i > endRun; i--) {
+		//exekuce instrukci
+		if(s->inst[i]->type == INST_INSTRUCTION) executeInstr(s->inst[i]->instr);
+	}
 	return 0;
 }
 
@@ -56,12 +73,17 @@ void executeInstr(tInstruction *i) {
 	printInstr(i);	
 	//INSERT - push hodnoty do DStack
 	if(i->op == INSTR_INSERT) {
-		dStackPush(&ds, (tData *)(i->addr1));
+		tData *data = (tData *)i->addr1;
+		dStackPush(&ds, data);
 		dStackPrint(&ds);
 	}
 	//ASSIGNMENT - prirazeni hodnoty z vrcholu zasobniku DStack do promenne na adrese addr3
 	else if(i->op == ASSIGNMENT) {
-		i->addr3 = dStackPop(&ds);
+		tData *data = (tData *)i->addr3;
+		tData *tmp;
+		tmp = dStackPop(&ds);
+		//TODO: different types, not only integer
+		data->value.integer = tmp->value.integer;
 		dStackPrint(&ds);
 	}
 }
@@ -70,20 +92,21 @@ void executeInstr(tInstruction *i) {
 void printInstr(tInstruction *i) {
 	//------------------------------------INSERT
 	if (i->op == INSTR_INSERT) {
-		switch (((tData *)(i->addr1))->type) {
+		tData *data = (tData *)i->addr1;
+		switch (data->type) {
 			case INT:
-				printf("INSERT %d\n", ((tData *)(i->addr1))->value);
+				printf("INSERT %d\n", data->value.integer);
 				break;
 			case DOUBLE:
-				printf("INSERT %f\n", ((tData *)(i->addr1))->value);
+				printf("INSERT %f\n", data->value.real);
 				break;
 			case STRING:
-				printf("INSERT %s\n", ((tData *)(i->addr1))->value);
+				printf("INSERT %s\n", data->value.str);
 				break;
 			case VOID:
 				break;
 			case BOOLEAN:
-				printf("INSERT %d (boolean)\n", ((tData *)(i->addr1))->value);
+				printf("INSERT %d (boolean)\n", data->value.boolean);
 				break;
 			default:
 				printf("INSERT Unknown type variable\n");
@@ -92,20 +115,21 @@ void printInstr(tInstruction *i) {
 	}
 	//------------------------------------ASSIGNMENT
 	else if (i->op == ASSIGNMENT) {
+		tData *data = dStackTop(&ds);
 		switch ((dStackTop(&ds))->type) {
 			case INT:
-				printf("ASSIGN %d to %p\n", (dStackTop(&ds))->value.integer, i->addr3);
+				printf("ASSIGN %d to %p\n", data->value.integer, i->addr3);
 				break;
 			case DOUBLE:
-				printf("ASSIGN %f to %p\n", (dStackTop(&ds))->value.real, i->addr3);
+				printf("ASSIGN %f to %p\n", data->value.real, i->addr3);
 				break;
 			case STRING:
-				printf("ASSIGN %s to %p\n", (dStackTop(&ds))->value.str, i->addr3);
+				printf("ASSIGN %s to %p\n", data->value.str, i->addr3);
 				break;
 			case VOID:
 				break;
 			case BOOLEAN:
-				printf("ASSIGN %d (boolean) to %p\n", (dStackTop(&ds))->value.boolean, i->addr3);
+				printf("ASSIGN %d (boolean) to %p\n", data->value.boolean, i->addr3);
 				break;
 			default:
 				printf("ASSIGN Unknown type variable to %p\n", i->addr3);
@@ -120,6 +144,9 @@ void dStackInit(tDStack *s) {
 	if (s != NULL) {
 		s->top = -1;
 		s->arr = malloc(MAX_STACK * sizeof(tData *));
+		if (s->arr == NULL) {
+			//ALOC_ERR
+		}
 	}
 	else {
 		//err

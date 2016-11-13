@@ -1,8 +1,10 @@
 class Main{
 	static int a = 1;
-
+	static int b = 2;
+	static int c = 3;
 	static void run(){
-
 		int a = 10;
+		int b = Main.b;
+		int c = Main.c;
 	}
 }
