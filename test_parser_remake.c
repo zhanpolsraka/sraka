@@ -11,7 +11,6 @@
 #include "test_table.h"
 #include "test_parser_remake.h"
 #include "test_error.h"
-//#include "test_interpret.h"
 
 // indikace tridy 'Main'
 bool main_flag = false;

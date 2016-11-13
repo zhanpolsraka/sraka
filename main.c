@@ -6,10 +6,13 @@
 #include "test_scanner.h"
 #include "test_table.h"
 #include "test_parser_remake.h"
+#include "test_inst.h"
+#include "interpret.h"
 
 
 int main()
 {
+    bool error = true;
     // otevirame zdrojovy soubor
     open_source("text.txt");
     // inicializuje tabulku symbolu
@@ -32,6 +35,7 @@ int main()
     printf("                     %s\n", "*");
     printf("%s\n",     "------------------EXECUTE------------------");
     printf("\n%s\n\n", "------------------OUTPUT-------------------");
+    execute(&instr);
     printf("\n%s\n\n", "-----------------END OUTPUT----------------");
 
     printf("\n%s\n\n", "----------------ALL RIGHT!!!---------------");
@@ -42,7 +46,7 @@ int main()
     printf("\n%s",     "--------------INSTRUCTION LIST-------------" );
     print_instr_stack(&instr);
     printf("\n");
-
+    
     // uvolneme tabulku symbolu a seznam instrukci
 	destroy_tree(tree.root);
     // zavreme zdrojovy soubor

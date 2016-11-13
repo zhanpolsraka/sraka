@@ -48,8 +48,8 @@ void create_instruction(int op, void *addr1, void *addr2, void *addr3)
 
     new_instr->op = op;
 
-    // записывает строки в адресса операндов
-    // создаст новую строку для названия каждого операнда
+    // zapisuje retezce do adres operandu
+    // (vytvari novy retezec pro nazev operandu)
     if (addr1 != NULL)
     {
         string *addr1_name = NULL;
@@ -74,7 +74,10 @@ void create_instruction(int op, void *addr1, void *addr2, void *addr3)
     {
         string *addr3_name = NULL;
         if ((addr3_name = malloc(sizeof(string))) == NULL)
+        {
             throw_err(ALLOC_ERROR, ALL_STRUCT);
+            return false;
+        }
 
         strInit(addr3_name);
         strCopyString(addr3_name, addr3);
@@ -83,18 +86,20 @@ void create_instruction(int op, void *addr1, void *addr2, void *addr3)
 
     tInstance *new_inst;
     if ((new_inst = malloc(sizeof(tInstance))) == NULL)
+
         throw_err(ALLOC_ERROR, ALL_STRUCT);
 
     new_inst->type = INST_INSTRUCTION;
     new_inst->instr = new_instr;
 
     instr_stack_push(main_instr_stack, new_inst);
+
 }
 
 void *search_var(string *str, tNode *begin, int type);
 tData *make_data(string *str);
 
-// создаст связи в таблице символов для определенных инструкций
+// vytvari relaci v tabulke symbolu prislusne instrukce
 void make_relations(tInstrStack *st)
 {
     for (int i = st->top; i > -1; i--)
@@ -359,6 +364,7 @@ void proc_ride_struct(tInstrStack *st, tInstruction *instr, int beg_indx)
 void *search_var(string *str, tNode *begin, int type)
 {
     tNode *found;
+
     if (strchr(strGetStr(str), '.') != NULL)
     {
         char *ptr;

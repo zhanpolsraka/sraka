@@ -28,6 +28,7 @@ typedef enum{
                     INSTR_SUBSTR, // встроенная функция ifj16.substr()
                     INSTR_COMPARE, // встроенная функция ifj16.compare()
                     INSTR_SORT // встроенная функция ifj16.sort()
+
 } tOperation;
 
 typedef enum{
@@ -68,11 +69,13 @@ typedef struct{
 
 extern char *name_inst[];
 void instr_stack_push(tInstrStack *st, tInstance *data);
+
 tInstance *instr_stack_pop(tInstrStack *st);
 void instr_free_stack(tInstrStack *st);
 void instr_stack_destroy(tInstrStack *st);
 bool instr_stack_full(tInstrStack *st);
 bool instr_stack_empty(tInstrStack *st);
+
 void instr_stack_init(tInstrStack *st);
 void print_instr_stack(tInstrStack *st);
 
