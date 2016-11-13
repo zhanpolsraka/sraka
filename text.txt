@@ -1,32 +1,10 @@
-
-
 class Main{
-
-	static int cond = 5;
-
+	static int a = 1;
+	static int b = 2;
+	static int c = 3;
 	static void run(){
-
-		int tut = 2;
-		int opis = 9;
-		int y = 10;
-
-		int x = tut + y;
-		//opis = tut + Frame.change(Main.cond, 10) + 10 + opora(); // 2 + 135 + 10 + 10 = 157
+		int a = 10;
+		int b = Main.b;
+		int c = Main.c;
 	}
-
-	static int opora()
-	{
-		Main.cond = 10;
-		return Main.cond;
-	}
-}
-
-class Frame{
-
-
-	static void change(int yu, int yui){ // 5 20
-		yu = yu + 10 + yui; // 35
-		return yu + 100; // 135
-	}
-
 }

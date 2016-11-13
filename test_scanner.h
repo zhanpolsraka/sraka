@@ -31,7 +31,7 @@ typedef enum{
     L_VIN,      // leva hranata zavorka (25)
     R_VIN,      // prava hranata zavorka(26)
     KEYWORD,    // klicove slovo        (13)
-    INT,        // typ int              (14)
+    INT,        // typ int              (20)/14
     DOUBLE,     // typ double           (15)
     STRING,     // typ retezec          (16)
     VOID,       // prazdny typ          (17)
