@@ -14,12 +14,12 @@ int execute(tInstrStack *s) {
 	//pomocne flagy
 	bool inFunc = false;
 	bool inMain = false;
-	int run = -1;
-	int endRun = -1;
+	int run = NIL_VALUE;
+	int endRun = NIL_VALUE;
 	//inicializace DStack
 	dStackInit(&ds);
 	//exekuce instrukci mimo funkci a zaroven nalezeni instrukci funkci run()
-	for(int i = s->top; i > -1; i--) {
+	for(int i = s->top; i > NIL_VALUE; i--) {
 		printf("STEP 1 - non-func instructions\n");
 		//nalezeni instrukci tridy Main
 		if(s->inst[i]->type == INST_CLASS && !strCmpConstStr(s->inst[i]->name, "Main")) {
@@ -44,7 +44,7 @@ int execute(tInstrStack *s) {
 		if(s->inst[i]->type == INST_END_FUNCTION) {
 			printf("Got out of function\n");
 			inFunc = false;
-			if (run > -1 && endRun == -1 && inMain) {
+			if (run > NIL_VALUE && endRun == NIL_VALUE && inMain) {
 				printf("Got out of run()\n");
 				endRun = i;
 			}
@@ -55,7 +55,7 @@ int execute(tInstrStack *s) {
 	}
 	//osetreni chybnosti run() v Mainu
 	printf("STEP 2 - validating existance of run() in Main\n");
-	if (run == -1 || endRun == -1) {
+	if (run == NIL_VALUE || endRun == NIL_VALUE) {
 		printf("No run() in Main found, aborting execution\n");
 		return INT_ERROR;
 	}
@@ -142,7 +142,7 @@ void printInstr(tInstruction *i) {
 //inicializace zasobniku DStack
 void dStackInit(tDStack *s) {
 	if (s != NULL) {
-		s->top = -1;
+		s->top = NIL_VALUE;
 		s->arr = malloc(MAX_STACK * sizeof(tData *));
 		if (s->arr == NULL) {
 			//ALOC_ERR
@@ -156,7 +156,7 @@ void dStackInit(tDStack *s) {
 //Vypis zasobniku DStack
 void dStackPrint(tDStack *s) {
 	printf("---------------------------------------------------\n");
-	for(int i = s->top; i > -1; i--) {
+	for(int i = s->top; i > NIL_VALUE; i--) {
 		printf("N%d: type is %d, values is %d\n", i, s->arr[i]->type, s->arr[i]->value);
 	}
 	printf("---------------------------------------------------\n");
@@ -218,7 +218,7 @@ bool dStackIsFull(tDStack *s) {
 
 //Vraci true jestli DStack je prazdny
 bool dStackIsEmpty(tDStack *s) {
-	return s->top == -1;
+	return s->top == NIL_VALUE;
 }
 
 //Vraci pocet polozek v zasobniku DStack
@@ -233,7 +233,7 @@ void dStackReverse(tDStack *s) {
 	else if (!dStackIsEmpty(s)) {
 		tData *tmp;
 		int j = 0;
-		for(int i = s->top; i > -1; i--) {
+		for(int i = s->top; i > NIL_VALUE; i--) {
 			tmp = s->arr[i];
 			s->arr[i] = s->arr[j];
 			s->arr[j] = tmp;

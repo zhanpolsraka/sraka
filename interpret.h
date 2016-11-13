@@ -1,6 +1,7 @@
 #ifndef _INTERPRET_H_
 #define _INTERPRET_H_
 #define MAX_STACK 1024
+#define NIL_VALUE -1
 
 typedef struct {
 	//tData *arr[MAX_STACK];
