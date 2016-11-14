@@ -93,9 +93,44 @@ void executeInstr(tInstruction *i) {
 		if (tma->type == tmb->type){
 			sum->type = tma->type;
 			if (tma->type == INT) sum->value.integer = tma->value.integer + tmb->value.integer;
-			if (tma->type == BOOLEAN) sum->value.real = tma->value.real + tmb->value.real;
+			if (tma->type == DOUBLE) sum->value.real = tma->value.real + tmb->value.real;
+			//if (tma->type == STRING) sum->value.str = tma->value.str + tmb->value.str;
+		}
+		else if (tma->type == DOUBLE && tmb->type == INT)
+		{
+			sum->type = tma->type;
+			sum->value.real = tma->value.real + (double)tmb->value.integer;
+		}
+		else if (tma->type == INT && tmb->type == DOUBLE)
+		{
+			sum->type = tmb->type;
+			sum->value.real = (double)tma->value.integer + tmb->value.real;
 		}
 		dStackPush(&ds, sum);
+		dStackPrint(&ds);
+	}
+	else if(i->op == MINUS) {
+		tData *tma, *tmb, *sum;
+		tma = dStackPop(&ds);
+		tmb = dStackPop(&ds);
+		if (tma->type == tmb->type){
+			sum->type = tma->type;
+			if (tma->type == INT) sum->value.integer = tmb->value.integer - tma->value.integer;
+			if (tma->type == DOUBLE) sum->value.real = tmb->value.real - tma->value.real;
+		}
+		dStackPush(&ds, sum);
+		dStackPrint(&ds);
+	}
+	else if(i->op == MUL) {
+		tData *tma, *tmb, *mul;
+		tma = dStackPop(&ds);
+		tmb = dStackPop(&ds);
+		if (tma->type == tmb->type){
+			mul->type = tma->type;
+			if (tma->type == INT) mul->value.integer = (tma->value.integer)*(tmb->value.integer);
+			if (tma->type == DOUBLE) mul->value.real = (tma->value.real)*(tmb->value.real);
+		}
+		dStackPush(&ds, mul);
 		dStackPrint(&ds);
 	}
 }
