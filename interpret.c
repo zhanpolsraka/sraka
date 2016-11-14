@@ -19,8 +19,8 @@ int execute(tInstrStack *s) {
 	//inicializace DStack
 	dStackInit(&ds);
 	//exekuce instrukci mimo funkci a zaroven nalezeni instrukci funkci run()
-	printf("STEP 1 - non-func instructions\n");
 	for(int i = s->top; i > NIL_VALUE; i--) {
+		printf("STEP 1 - non-func instructions\n");
 		//nalezeni instrukci tridy Main
 		if(s->inst[i]->type == INST_CLASS && !strCmpConstStr(s->inst[i]->name, "Main")) {
 			printf("Found Main\n");
@@ -86,6 +86,18 @@ void executeInstr(tInstruction *i) {
 		data->value.integer = tmp->value.integer;
 		dStackPrint(&ds);
 	}
+	else if(i->op == PLUS) {
+		tData *tma, *tmb, *sum;
+		tma = dStackPop(&ds);
+		tmb = dStackPop(&ds);
+		if (tma->type == tmb->type){
+			sum->type = tma->type;
+			if (tma->type == INT) sum->value.integer = tma->value.integer + tmb->value.integer;
+			if (tma->type == BOOLEAN) sum->value.real = tma->value.real + tmb->value.real;
+		}
+		dStackPush(&ds, sum);
+		dStackPrint(&ds);
+	}
 }
 
 /*helper function - Delete this later - for debugging purposes*/
@@ -135,7 +147,11 @@ void printInstr(tInstruction *i) {
 				printf("ASSIGN Unknown type variable to %p\n", i->addr3);
 				break;
 		}
+
 	}
+	else if (i->op == PLUS) {
+			printf("PLUS\n");
+		}
 }
 /**/
 
