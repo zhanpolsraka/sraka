@@ -208,7 +208,26 @@ void dStackInit(tDStack *s) {
 void dStackPrint(tDStack *s) {
 	printf("---------------------------------------------------\n");
 	for(int i = s->top; i > NIL_VALUE; i--) {
-		printf("N%d: type is %d, values is %d\n", i, s->arr[i]->type, s->arr[i]->value);
+		switch (s->arr[i]->type) {
+			case INT:
+				printf("N%d: type is %d, values is %d\n", i, s->arr[i]->type, s->arr[i]->value);
+				break;
+			case DOUBLE:
+				printf("N%d: type is %d, values is %f\n", i, s->arr[i]->type, s->arr[i]->value);
+				break;
+			case STRING:
+				printf("N%d: type is %d, values is %s\n", i, s->arr[i]->type, s->arr[i]->value);
+				break;
+			case VOID:
+				printf("N%d: type is %d, values is %d\n", i, s->arr[i]->type, s->arr[i]->value);
+				break;
+			case BOOLEAN:
+				printf("N%d: type is %d, values is %d (bool) \n", i, s->arr[i]->type, s->arr[i]->value);
+				break;
+			default:
+				printf("???\n");
+				break;
+		}
 	}
 	printf("---------------------------------------------------\n");
 }
