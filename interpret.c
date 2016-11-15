@@ -83,11 +83,21 @@ void executeInstr(tInstruction *i) {
 		tData *tmp;
 		tmp = dStackPop(&ds);
 		//TODO: different types, not only integer
-		data->value.integer = tmp->value.integer;
+		switch (data->type) {
+			case INT:
+				data->value.integer = tmp->value.integer;
+			case DOUBLE:
+				data->value.real = tmp->value.real;
+			case STRING:
+				data->value.str = tmp->value.str;
+			case BOOLEAN:
+				data->value.boolean = tmp->value.boolean;
+		}
+		
 		dStackPrint(&ds);
 	}
 	else if(i->op == PLUS) {
-		tData *tma, *tmb, *sum;
+		tData *tma, *tmb, *sum = (tData *)i->addr1;
 		tma = dStackPop(&ds);
 		tmb = dStackPop(&ds);
 		if (tma->type == tmb->type){
@@ -96,15 +106,15 @@ void executeInstr(tInstruction *i) {
 			if (tma->type == DOUBLE) sum->value.real = tma->value.real + tmb->value.real;
 			//if (tma->type == STRING) sum->value.str = tma->value.str + tmb->value.str;
 		}
-		else if (tma->type == DOUBLE && tmb->type == INT)
+		else if (tma->type == 26 && tmb->type == 22)
 		{
 			sum->type = tma->type;
-			sum->value.real = tma->value.real + (double)tmb->value.integer;
+			sum->value.real = tma->value.real + tmb->value.integer;
 		}
-		else if (tma->type == INT && tmb->type == DOUBLE)
+		else if (tma->type == 22 && tmb->type == 26)
 		{
 			sum->type = tmb->type;
-			sum->value.real = (double)tma->value.integer + tmb->value.real;
+			sum->value.real = tma->value.integer + tmb->value.real;
 		}
 		dStackPush(&ds, sum);
 		dStackPrint(&ds);
