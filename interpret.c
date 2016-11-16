@@ -82,7 +82,6 @@ void executeInstr(tInstruction *i) {
 		tData *data = (tData *)i->addr3;
 		tData *tmp;
 		tmp = dStackPop(&ds);
-		//TODO: different types, not only integer
 		switch (data->type) {
 			case INT:
 				data->value.integer = tmp->value.integer;
@@ -97,50 +96,74 @@ void executeInstr(tInstruction *i) {
 		dStackPrint(&ds);
 	}
 	else if(i->op == PLUS) {
-		tData *tma, *tmb, *sum = (tData *)i->addr1;
+		tData *tma, *tmb, sum;
 		tma = dStackPop(&ds);
 		tmb = dStackPop(&ds);
 		if (tma->type == tmb->type){
-			sum->type = tma->type;
-			if (tma->type == INT) sum->value.integer = tma->value.integer + tmb->value.integer;
-			if (tma->type == DOUBLE) sum->value.real = tma->value.real + tmb->value.real;
-			//if (tma->type == STRING) sum->value.str = tma->value.str + tmb->value.str;
+			sum.type = tma->type;
+			if (tma->type == INT) sum.value.integer = tma->value.integer + tmb->value.integer;
+			if (tma->type == DOUBLE) sum.value.real = tma->value.real + tmb->value.real;
+			/*if (tma->type == STRING) 
+				{
+					strCopyString(&sum.value.str, &tma->value.str);
+
+				}*/
 		}
-		else if (tma->type == 26 && tmb->type == 22)
+		else if (tma->type == DOUBLE && tmb->type == INT)
 		{
-			sum->type = tma->type;
-			sum->value.real = tma->value.real + tmb->value.integer;
+			sum.type = tma->type;
+			sum.value.real = tma->value.real + (double)tmb->value.integer;
 		}
-		else if (tma->type == 22 && tmb->type == 26)
+		else if (tma->type == INT && tmb->type == DOUBLE)
 		{
-			sum->type = tmb->type;
-			sum->value.real = tma->value.integer + tmb->value.real;
+			sum.type = tmb->type;
+			sum.value.real = (double)tma->value.integer + tmb->value.real;
 		}
-		dStackPush(&ds, sum);
+		dStackPush(&ds, &sum);
 		dStackPrint(&ds);
 	}
 	else if(i->op == MINUS) {
-		tData *tma, *tmb, *sum;
+		tData *tma, *tmb, sum;
 		tma = dStackPop(&ds);
 		tmb = dStackPop(&ds);
 		if (tma->type == tmb->type){
-			sum->type = tma->type;
-			if (tma->type == INT) sum->value.integer = tmb->value.integer - tma->value.integer;
-			if (tma->type == DOUBLE) sum->value.real = tmb->value.real - tma->value.real;
+			sum.type = tma->type;
+			if (tma->type == INT) sum.value.integer = tma->value.integer - tmb->value.integer;
+			if (tma->type == DOUBLE) sum.value.real = tma->value.real - tmb->value.real;
 		}
-		dStackPush(&ds, sum);
+		else if (tma->type == DOUBLE && tmb->type == INT)
+		{
+			sum.type = tma->type;
+			sum.value.real = tma->value.real - (double)tmb->value.integer;
+		}
+		else if (tma->type == INT && tmb->type == DOUBLE)
+		{
+			sum.type = tmb->type;
+			sum.value.real = (double)tma->value.integer - tmb->value.real;
+		}
+		dStackPush(&ds, &sum);
 		dStackPrint(&ds);
 	}
 	else if(i->op == MUL) {
-		tData *tma, *tmb, *mul;
+		tData *tma, *tmb, sum;
 		tma = dStackPop(&ds);
 		tmb = dStackPop(&ds);
 		if (tma->type == tmb->type){
-			mul->type = tma->type;
-			if (tma->type == INT) mul->value.integer = (tma->value.integer)*(tmb->value.integer);
-			if (tma->type == DOUBLE) mul->value.real = (tma->value.real)*(tmb->value.real);
+			sum.type = tma->type;
+			if (tma->type == INT) sum.value.integer = tma->value.integer*tmb->value.integer;
+			if (tma->type == DOUBLE) sum.value.real = tma->value.real*tmb->value.real;
 		}
-		dStackPush(&ds, mul);
+		else if (tma->type == DOUBLE && tmb->type == INT)
+		{
+			sum.type = tma->type;
+			sum.value.real = tma->value.real*(double)tmb->value.integer;
+		}
+		else if (tma->type == INT && tmb->type == DOUBLE)
+		{
+			sum.type = tmb->type;
+			sum.value.real = (double)tma->value.integer*tmb->value.real;
+		}
+		dStackPush(&ds, &sum);
 		dStackPrint(&ds);
 	}
 }
@@ -220,19 +243,19 @@ void dStackPrint(tDStack *s) {
 	for(int i = s->top; i > NIL_VALUE; i--) {
 		switch (s->arr[i]->type) {
 			case INT:
-				printf("N%d: type is %d, values is %d\n", i, s->arr[i]->type, s->arr[i]->value);
+				printf("N%d: type is %d, values is %d\n", i, s->arr[i]->type, s->arr[i]->value.integer);
 				break;
 			case DOUBLE:
-				printf("N%d: type is %d, values is %f\n", i, s->arr[i]->type, s->arr[i]->value);
+				printf("N%d: type is %d, values is %f\n", i, s->arr[i]->type, s->arr[i]->value.real);
 				break;
 			case STRING:
-				printf("N%d: type is %d, values is %s\n", i, s->arr[i]->type, s->arr[i]->value);
+				printf("N%d: type is %d, values is %s\n", i, s->arr[i]->type, s->arr[i]->value.str);
 				break;
 			case VOID:
 				printf("N%d: type is %d, values is %d\n", i, s->arr[i]->type, s->arr[i]->value);
 				break;
 			case BOOLEAN:
-				printf("N%d: type is %d, values is %d (bool) \n", i, s->arr[i]->type, s->arr[i]->value);
+				printf("N%d: type is %d, values is %d (bool) \n", i, s->arr[i]->type, s->arr[i]->value.boolean);
 				break;
 			default:
 				printf("???\n");
