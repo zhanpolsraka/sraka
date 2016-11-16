@@ -103,11 +103,6 @@ void executeInstr(tInstruction *i) {
 			sum.type = tma->type;
 			if (tma->type == INT) sum.value.integer = tma->value.integer + tmb->value.integer;
 			if (tma->type == DOUBLE) sum.value.real = tma->value.real + tmb->value.real;
-			/*if (tma->type == STRING) 
-				{
-					strCopyString(&sum.value.str, &tma->value.str);
-
-				}*/
 		}
 		else if (tma->type == DOUBLE && tmb->type == INT)
 		{
