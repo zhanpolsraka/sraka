@@ -86,7 +86,12 @@ void executeInstr(tInstruction *i) {
 			case INT:
 				data->value.integer = tmp->value.integer;
 			case DOUBLE:
+				if (tmp->type == DOUBLE)
 				data->value.real = tmp->value.real;
+				else if (tmp->type == INT){
+				printf("!%g\n", (double)tmp->value.integer);
+				data->value.real = (double)tmp->value.integer;
+				printf("!%g, %d\n", data->value.real, data->type);}
 			case STRING:
 				data->value.str = tmp->value.str;
 			case BOOLEAN:
@@ -173,7 +178,7 @@ void printInstr(tInstruction *i) {
 				printf("INSERT %d\n", data->value.integer);
 				break;
 			case DOUBLE:
-				printf("INSERT %f\n", data->value.real);
+				printf("INSERT %g\n", data->value.real);
 				break;
 			case STRING:
 				printf("INSERT %s\n", data->value.str);
@@ -241,7 +246,7 @@ void dStackPrint(tDStack *s) {
 				printf("N%d: type is %d, values is %d\n", i, s->arr[i]->type, s->arr[i]->value.integer);
 				break;
 			case DOUBLE:
-				printf("N%d: type is %d, values is %f\n", i, s->arr[i]->type, s->arr[i]->value.real);
+				printf("N%d: type is %d, values is %g\n", i, s->arr[i]->type, s->arr[i]->value.real);
 				break;
 			case STRING:
 				printf("N%d: type is %d, values is %s\n", i, s->arr[i]->type, s->arr[i]->value.str);
