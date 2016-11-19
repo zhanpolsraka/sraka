@@ -1,7 +1,10 @@
 
 #include "ial.h"
 
+#ifndef max
 #define max(a,b) ((a > b) ? a : b)
+#endif // max
+
 
 /**
 * suffix_match
@@ -65,35 +68,38 @@ void create_stop_symbols(int *stop_sbs, string *pattern) {
 **/
 int find(string *s, string *pattern) {
 
-    int s_len = s->length;
-    int pat_len = pattern->length;
-    int suffix_table[pat_len];
-    int stop_symbols[ALPHABET_LEN];
+	int s_len = s->length;
+	int pat_len = pattern->length;
+	int stop_symbols[ALPHABET_LEN];
 
-    if (pat_len == 0) {
-        return 0;
-    }
-    if (pat_len > s_len || s_len <= 0 || pat_len < 0 || !s || !pattern) {
-        return NOT_FOUND;
-    }
+	if (pat_len == 0) {
+		return 0;
+	}
+	if (pat_len > s_len || s_len <= 0 || pat_len < 0 || !s || !pattern) {
+		return NOT_FOUND;
+	}
 
-    create_stop_symbols(stop_symbols, pattern);
-    create_suffix_table(suffix_table, pattern);
+	int *suffix_table = malloc(sizeof(int)*pat_len);
+	create_suffix_table(suffix_table, pattern);
+	create_stop_symbols(stop_symbols, pattern);
 
-    for (int s_pos = 0; s_pos <= s_len - pat_len; ) {
-        int p_pos = pat_len - 1;
+	for (int s_pos = 0; s_pos <= s_len - pat_len; ) {
+		int p_pos = pat_len - 1;
 
-        while (pattern->str[p_pos] == s->str[p_pos + s_pos]) {
-            if (p_pos == 0) {
-                return s_pos;
-            }
-            --p_pos;
-        }
-        s_pos += max(suffix_table[p_pos],
-                    p_pos - stop_symbols[(unsigned char)s->str[p_pos + s_pos]]);
-    }
-    return NOT_FOUND;
+		while (pattern->str[p_pos] == s->str[p_pos + s_pos]) {
+			if (p_pos == 0) {
+				free(suffix_table);
+				return s_pos;
+			}
+			--p_pos;
+		}
+		s_pos += max(suffix_table[p_pos],
+			p_pos - stop_symbols[(unsigned char)s->str[p_pos + s_pos]]);
+	}
+	free(suffix_table);
+	return NOT_FOUND;
 }
+
 
 /* TODO */
 string *sort(string *s) {
