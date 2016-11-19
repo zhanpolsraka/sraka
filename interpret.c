@@ -19,8 +19,8 @@ int execute(tInstrStack *s) {
 	//inicializace DStack
 	dStackInit(&ds);
 	//exekuce instrukci mimo funkci a zaroven nalezeni instrukci funkci run()
-	printf("STEP 1 - non-func instructions\n");
 	for(int i = s->top; i > NIL_VALUE; i--) {
+		printf("STEP 1 - non-func instructions\n");
 		//nalezeni instrukci tridy Main
 		if(s->inst[i]->type == INST_CLASS && !strCmpConstStr(s->inst[i]->name, "Main")) {
 			printf("Found Main\n");
@@ -50,7 +50,7 @@ int execute(tInstrStack *s) {
 			}
 		}
 		//exekuce instrukci mimo funkci
-		if(s->inst[i]->type == INST_INSTRUCTION && !inFunc) executeInstr(s->inst[i]->instr); 
+		if(s->inst[i]->type == INST_INSTRUCTION && !inFunc) executeInstr(s->inst[i]->instr, s, i); 
 
 	}
 	//osetreni chybnosti run() v Mainu
@@ -61,15 +61,20 @@ int execute(tInstrStack *s) {
 	}
 	//exekuce instrukci funkci run()
 	printf("STEP 3 - executing run() instructions\n");
-	for(int i = run; i > endRun; i--) {
+	for(int i = run; i > endRun; ) {
 		//exekuce instrukci
-		if(s->inst[i]->type == INST_INSTRUCTION) executeInstr(s->inst[i]->instr);
+		if(s->inst[i]->type == INST_INSTRUCTION) {
+			i = executeInstr(s->inst[i]->instr, s, i);				
+		} 
+		else {
+			i--;
+		}
 	}
 	return 0;
 }
 
 //Exekuce jednotlive instrukci
-void executeInstr(tInstruction *i) {
+int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 	printInstr(i);	
 	//INSERT - push hodnoty do DStack
 	if(i->op == INSTR_INSERT) {
@@ -82,10 +87,152 @@ void executeInstr(tInstruction *i) {
 		tData *data = (tData *)i->addr3;
 		tData *tmp;
 		tmp = dStackPop(&ds);
-		//TODO: different types, not only integer
-		data->value.integer = tmp->value.integer;
+		switch (data->type) {
+			case INT:
+				data->value.integer = tmp->value.integer;
+				break;
+			case DOUBLE:
+				if (tmp->type == DOUBLE)
+				data->value.real = tmp->value.real;
+				else if (tmp->type == INT) {
+					printf("!%g\n", (double)tmp->value.integer);
+					data->value.real = (double)tmp->value.integer;
+					printf("!%g, %d\n", data->value.real, data->type);
+				}
+				break;
+			case STRING:
+				data->value.str = tmp->value.str;
+				break;
+			case BOOLEAN:
+				data->value.boolean = tmp->value.boolean;
+				break;
+			default:
+			//arr;
+				break;
+		}
+		
 		dStackPrint(&ds);
 	}
+	else if(i->op == PLUS) {
+		tData *tma, *tmb, sum;
+		tma = dStackPop(&ds);
+		tmb = dStackPop(&ds);
+		if (tma->type == tmb->type){
+			sum.type = tma->type;
+			if (tma->type == INT) sum.value.integer = tma->value.integer + tmb->value.integer;
+			if (tma->type == DOUBLE) sum.value.real = tma->value.real + tmb->value.real;
+			//if (tma->type == STRING) sum.value.str = 
+		}
+		else if (tma->type == DOUBLE && tmb->type == INT)
+		{
+			sum.type = tma->type;
+			sum.value.real = tma->value.real + (double)tmb->value.integer;
+		}
+		else if (tma->type == INT && tmb->type == DOUBLE)
+		{
+			sum.type = tmb->type;
+			sum.value.real = (double)tma->value.integer + tmb->value.real;
+		}
+		dStackPush(&ds, &sum);
+		dStackPrint(&ds);
+	}
+	else if(i->op == MINUS) {
+		tData *tma, *tmb, sum;
+		tma = dStackPop(&ds);
+		tmb = dStackPop(&ds);
+		if (tma->type == tmb->type){
+			sum.type = tma->type;
+			if (tma->type == INT) sum.value.integer = tma->value.integer - tmb->value.integer;
+			if (tma->type == DOUBLE) sum.value.real = tma->value.real - tmb->value.real;
+		}
+		else if (tma->type == DOUBLE && tmb->type == INT)
+		{
+			sum.type = tma->type;
+			sum.value.real = tma->value.real - (double)tmb->value.integer;
+		}
+		else if (tma->type == INT && tmb->type == DOUBLE)
+		{
+			sum.type = tmb->type;
+			sum.value.real = (double)tma->value.integer - tmb->value.real;
+		}
+		sum.value.real = -sum.value.real;
+		dStackPush(&ds, &sum);
+		dStackPrint(&ds);
+	}
+	else if(i->op == MUL) {
+		tData *tma, *tmb, sum;
+		tma = dStackPop(&ds);
+		tmb = dStackPop(&ds);
+		if (tma->type == tmb->type){
+			sum.type = tma->type;
+			if (tma->type == INT) sum.value.integer = tma->value.integer*tmb->value.integer;
+			if (tma->type == DOUBLE) sum.value.real = tma->value.real*tmb->value.real;
+		}
+		else if (tma->type == DOUBLE && tmb->type == INT)
+		{
+			sum.type = tma->type;
+			sum.value.real = tma->value.real*(double)tmb->value.integer;
+		}
+		else if (tma->type == INT && tmb->type == DOUBLE)
+		{
+			sum.type = tmb->type;
+			sum.value.real = (double)tma->value.integer*tmb->value.real;
+		}
+		dStackPush(&ds, &sum);
+		dStackPrint(&ds);
+	}
+	else if(i->op == COMPARISON) {
+		tData *tma, *tmb, com;
+		tma = dStackPop(&ds);
+		tmb = dStackPop(&ds);
+		com.type = BOOLEAN;
+		switch (tma->type) {
+			case INT:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.integer == tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.integer == tmb->value.real);
+						break;
+				}
+				break;
+			case DOUBLE:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.real == tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.real == tmb->value.real);
+						break;
+				}
+				break;
+		}
+		dStackPush(&ds, &com);
+		dStackPrint(&ds);
+	}
+	else if (i->op == INSTR_IF) {
+		tData *con;
+		int *endif = (int *)i->addr1, *begel = (int *)i->addr2, *endel = (int *)i->addr3;
+		con = dStackPop(&ds);
+		if (con->value.boolean)
+		{
+			j--;
+			while ( j > *endif ) {
+				j = executeInstr(s->inst[j]->instr, s, j); 
+			}
+			if (begel != NULL && endel != NULL)
+				return (*endel-1);
+		}
+		else {
+			j = *begel;
+			printf("begel == %d\n", *begel);
+			while ( j > *endel ) { 
+				j = executeInstr(s->inst[j]->instr, s, j); 
+			}
+		}
+	}
+	return j-1;
 }
 
 /*helper function - Delete this later - for debugging purposes*/
@@ -98,7 +245,7 @@ void printInstr(tInstruction *i) {
 				printf("INSERT %d\n", data->value.integer);
 				break;
 			case DOUBLE:
-				printf("INSERT %f\n", data->value.real);
+				printf("INSERT %g\n", data->value.real);
 				break;
 			case STRING:
 				printf("INSERT %s\n", data->value.str);
@@ -135,7 +282,23 @@ void printInstr(tInstruction *i) {
 				printf("ASSIGN Unknown type variable to %p\n", i->addr3);
 				break;
 		}
+
 	}
+	else if (i->op == PLUS) {
+			printf("PLUS\n");
+		}
+	else if (i->op == INSTR_IF) {
+			printf("INSTR_IF\n");
+		}
+	else if (i->op == INSTR_BEG_COND) {
+			printf("INSTR_BEG_COND\n");
+		}
+	else if (i->op == INSTR_END_BLCK) {
+			printf("INSTR_END_BLCK\n");
+		}
+	else if (i->op == COMPARISON) {
+			printf("COMPARISON\n");
+		}
 }
 /**/
 
@@ -157,7 +320,26 @@ void dStackInit(tDStack *s) {
 void dStackPrint(tDStack *s) {
 	printf("---------------------------------------------------\n");
 	for(int i = s->top; i > NIL_VALUE; i--) {
-		printf("N%d: type is %d, values is %d\n", i, s->arr[i]->type, s->arr[i]->value);
+		switch (s->arr[i]->type) {
+			case INT:
+				printf("N%d: type is %d, values is %d\n", i, s->arr[i]->type, s->arr[i]->value.integer);
+				break;
+			case DOUBLE:
+				printf("N%d: type is %d, values is %g\n", i, s->arr[i]->type, s->arr[i]->value.real);
+				break;
+			case STRING:
+				printf("N%d: type is %d, values is %s\n", i, s->arr[i]->type, s->arr[i]->value.str);
+				break;
+			case VOID:
+				printf("N%d: type is %d, values is void\n", i, s->arr[i]->type);
+				break;
+			case BOOLEAN:
+				printf("N%d: type is %d, values is %d (bool) \n", i, s->arr[i]->type, s->arr[i]->value.boolean);
+				break;
+			default:
+				printf("???\n");
+				break;
+		}
 	}
 	printf("---------------------------------------------------\n");
 }
