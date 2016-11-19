@@ -10,14 +10,14 @@ import os
 
 FILES=""
 MODE="<<<<<<< HEAD\n"
-ERASEMOD=">>>>>>> master\n"
+ERASEMOD=">>>>>>> 3c808f6eb5ac9ca1344c7d524eadb65d9af6d073\n"
 SEP="=======\n"
 ERASE=0
 
 if len([f for f in sys.argv[1:] if os.path.isfile(f)]) == 0:
 	FILES = [f for f in os.listdir('.') if os.path.isfile(f)]
 else:
-	FILES = sys.argv[1:]
+	FILES = [f for f in sys.argv[1:] if os.path.isfile(f)]
 if "--master" in sys.argv:
 	tmp = MODE
 	MODE=ERASEMOD
