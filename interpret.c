@@ -181,6 +181,9 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 		dStackPush(&ds, &sum);
 		dStackPrint(&ds);
 	}
+	else if (i->op == INCREMENT) {
+		printf("INC\n");
+	}
 	else if(i->op == COMPARISON) {
 		tData *tma, *tmb, com;
 		tma = dStackPop(&ds);
@@ -211,6 +214,156 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 		dStackPush(&ds, &com);
 		dStackPrint(&ds);
 	}
+	else if (i->op == LESS) {
+		tData *tma, *tmb, com;
+		tmb = dStackPop(&ds);
+		tma = dStackPop(&ds);
+		com.type = BOOLEAN;
+		switch (tma->type) {
+			case INT:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.integer < tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.integer < tmb->value.real);
+						break;
+				}
+				break;
+			case DOUBLE:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.real < tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.real < tmb->value.real);
+						break;
+				}
+				break;
+		}
+		dStackPush(&ds, &com);
+		dStackPrint(&ds);
+	}
+	else if (i->op == GREATER) {
+		tData *tma, *tmb, com;
+		tmb = dStackPop(&ds);
+		tma = dStackPop(&ds);
+		com.type = BOOLEAN;
+		switch (tma->type) {
+			case INT:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.integer > tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.integer > tmb->value.real);
+						break;
+				}
+				break;
+			case DOUBLE:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.real > tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.real > tmb->value.real);
+						break;
+				}
+				break;
+		}
+		dStackPush(&ds, &com);
+		dStackPrint(&ds);
+	}
+	else if (i->op == LOEQ) {
+		tData *tma, *tmb, com;
+		tmb = dStackPop(&ds);
+		tma = dStackPop(&ds);
+		com.type = BOOLEAN;
+		switch (tma->type) {
+			case INT:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.integer <= tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.integer <= tmb->value.real);
+						break;
+				}
+				break;
+			case DOUBLE:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.real <= tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.real <= tmb->value.real);
+						break;
+				}
+				break;
+		}
+		dStackPush(&ds, &com);
+		dStackPrint(&ds);
+	}
+	else if (i->op == GOEQ) {
+		tData *tma, *tmb, com;
+		tmb = dStackPop(&ds);
+		tma = dStackPop(&ds);
+		com.type = BOOLEAN;
+		switch (tma->type) {
+			case INT:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.integer >= tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.integer >= tmb->value.real);
+						break;
+				}
+				break;
+			case DOUBLE:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.real >= tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.real >= tmb->value.real);
+						break;
+				}
+				break;
+		}
+		dStackPush(&ds, &com);
+		dStackPrint(&ds);
+	}
+	else if(i->op == NEQ) {
+		tData *tma, *tmb, com;
+		tma = dStackPop(&ds);
+		tmb = dStackPop(&ds);
+		com.type = BOOLEAN;
+		switch (tma->type) {
+			case INT:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.integer != tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.integer != tmb->value.real);
+						break;
+				}
+				break;
+			case DOUBLE:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.real != tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.real != tmb->value.real);
+						break;
+				}
+				break;
+		}
+		dStackPush(&ds, &com);
+		dStackPrint(&ds);
+	}
 	else if (i->op == INSTR_IF) {
 		tData *con;
 		int *endif = (int *)i->addr1, *begel = (int *)i->addr2, *endel = (int *)i->addr3;
@@ -224,12 +377,14 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 			if (begel != NULL && endel != NULL)
 				return (*endel-1);
 		}
-		else {
+		else if (begel != NULL && endel != NULL) {
 			j = *begel;
-			printf("begel == %d\n", *begel);
 			while ( j > *endel ) { 
 				j = executeInstr(s->inst[j]->instr, s, j); 
 			}
+		}
+		else if (endif != NULL) {
+			return (*endif-1);
 		}
 	}
 	return j-1;
@@ -299,6 +454,10 @@ void printInstr(tInstruction *i) {
 	else if (i->op == COMPARISON) {
 			printf("COMPARISON\n");
 		}
+	else if (i->op == INSTR_WHILE) {
+		printf("WHILE\n");
+	}
+
 }
 /**/
 
