@@ -50,7 +50,7 @@ int execute(tInstrStack *s) {
 			}
 		}
 		//exekuce instrukci mimo funkci
-		if(s->inst[i]->type == INST_INSTRUCTION && !inFunc) executeInstr(s->inst[i]->instr); 
+		if(s->inst[i]->type == INST_INSTRUCTION && !inFunc) executeInstr(s->inst[i]->instr/*, s, i*/); 
 
 	}
 	//osetreni chybnosti run() v Mainu
@@ -61,19 +61,24 @@ int execute(tInstrStack *s) {
 	}
 	//exekuce instrukci funkci run()
 	printf("STEP 3 - executing run() instructions\n");
-	for(int i = run; i > endRun; i--) {
+	for(int i = run; i > endRun; ) {
 		//exekuce instrukci
-		if(s->inst[i]->type == INST_INSTRUCTION) executeInstr(s->inst[i]->instr);
+		if(s->inst[i]->type == INST_INSTRUCTION) {
+			/*int j = */executeInstr(s->inst[i]->instr/*, s, i*/); 
+			/*if (j != 0) i = j;
+			else i--;*/				
+		} 
 	}
 	return 0;
 }
 
 //Exekuce jednotlive instrukci
-void executeInstr(tInstruction *i) {
+int executeInstr(tInstruction *i/*, tInstrStack *s, int j*/) {
 	printInstr(i);	
 	//INSERT - push hodnoty do DStack
 	if(i->op == INSTR_INSERT) {
 		tData *data = (tData *)i->addr1;
+		printf("type %d, value %d\n", data->type, data->value.integer);
 		dStackPush(&ds, data);
 		dStackPrint(&ds);
 	}
@@ -85,17 +90,26 @@ void executeInstr(tInstruction *i) {
 		switch (data->type) {
 			case INT:
 				data->value.integer = tmp->value.integer;
+				break;
 			case DOUBLE:
 				if (tmp->type == DOUBLE)
 				data->value.real = tmp->value.real;
-				else if (tmp->type == INT){
-				printf("!%g\n", (double)tmp->value.integer);
-				data->value.real = (double)tmp->value.integer;
-				printf("!%g, %d\n", data->value.real, data->type);}
+				else if (tmp->type == INT)
+				{
+					printf("!%g\n", (double)tmp->value.integer);
+					data->value.real = (double)tmp->value.integer;
+					printf("!%g, %d\n", data->value.real, data->type);
+				}
+				break;
 			case STRING:
 				data->value.str = tmp->value.str;
+				break;
 			case BOOLEAN:
 				data->value.boolean = tmp->value.boolean;
+				break;
+			default:
+			//arr;
+				break;
 		}
 		
 		dStackPrint(&ds);
@@ -108,6 +122,7 @@ void executeInstr(tInstruction *i) {
 			sum.type = tma->type;
 			if (tma->type == INT) sum.value.integer = tma->value.integer + tmb->value.integer;
 			if (tma->type == DOUBLE) sum.value.real = tma->value.real + tmb->value.real;
+			//if (tma->type == STRING) sum.value.str = 
 		}
 		else if (tma->type == DOUBLE && tmb->type == INT)
 		{
@@ -166,6 +181,52 @@ void executeInstr(tInstruction *i) {
 		dStackPush(&ds, &sum);
 		dStackPrint(&ds);
 	}
+	else if(i->op == COMPARISON) {
+		tData *tma, *tmb, com;
+		tma = dStackPop(&ds);
+		tmb = dStackPop(&ds);
+		com.type = BOOLEAN;
+		switch (tma->type) {
+			case INT:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.integer == tmb->value.integer);
+					case DOUBLE:
+						com.value.boolean = (tma->value.integer == tmb->value.real);
+				}
+			case DOUBLE:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.real == tmb->value.integer);
+					case DOUBLE:
+						com.value.boolean = (tma->value.real == tmb->value.real);
+				}
+		}
+		dStackPush(&ds, &com);
+		dStackPrint(&ds);
+	}
+	/*else if (i->op == INSTR_IF) {
+		tData *con, *endif = (tData *)i->addr1, *begel = (tData *)i->addr2, *endel = (tData *)i->addr3;
+		con = dStackPop(&ds);
+		printf("!\n");
+		if (con->value.boolean)
+		{
+			printf("!\n");
+			while ( j > endif->value.integer ) { 
+				j--;
+				int k = executeInstr(s->inst[j]->instr, s, j); 
+				if (k != NIL_VALUE) j = k;
+			}
+			if (endel->value.integer != NIL_VALUE) return (endel->value.integer-1);
+			else return (j-1);
+		}
+		else {
+			printf("!\n");
+			if (begel->value.integer != NIL_VALUE){printf("!\n"); return begel->value.integer;}
+			else return (endif->value.integer - 1);
+		}
+	}*/
+	return NIL_VALUE;
 }
 
 /*helper function - Delete this later - for debugging purposes*/
@@ -219,6 +280,18 @@ void printInstr(tInstruction *i) {
 	}
 	else if (i->op == PLUS) {
 			printf("PLUS\n");
+		}
+	else if (i->op == INSTR_IF) {
+			printf("INSTR_IF\n");
+		}
+	else if (i->op == INSTR_BEG_COND) {
+			printf("INSTR_BEG_COND\n");
+		}
+	else if (i->op == INSTR_END_BLCK) {
+			printf("INSTR_END_BLCK\n");
+		}
+	else if (i->op == COMPARISON) {
+			printf("COMPARISON\n");
 		}
 }
 /**/

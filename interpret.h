@@ -18,7 +18,7 @@ void dStackPrint(tDStack *s);
 bool dStackIsFull(tDStack *s);
 bool dStackIsEmpty(tDStack *s);
 void dStackReverse(tDStack *s);
-void executeInstr(tInstruction *i);
+void executeInstr(tInstruction *i/*, tInstrStack *s, int j*/);
 int execute(tInstrStack *s);
 
 #endif
