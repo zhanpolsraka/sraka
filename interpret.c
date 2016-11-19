@@ -82,8 +82,8 @@ void executeInstr(tInstruction *i) {
 		tData *data = (tData *)i->addr3;
 		tData *tmp;
 		tmp = dStackPop(&ds);
-		//TODO: different types, not only integer
-		data->value.integer = tmp->value.integer;
+		data->value = tmp->value;
+
 		dStackPrint(&ds);
 	}
 	else if(i->op == PLUS) {
@@ -110,27 +110,27 @@ void executeInstr(tInstruction *i) {
 		dStackPrint(&ds);
 	}
 	else if(i->op == MINUS) {
-		tData *tma, *tmb, *sum;
+		tData *tma, *tmb, sum;
 		tma = dStackPop(&ds);
 		tmb = dStackPop(&ds);
 		if (tma->type == tmb->type){
-			sum->type = tma->type;
-			if (tma->type == INT) sum->value.integer = tmb->value.integer - tma->value.integer;
-			if (tma->type == DOUBLE) sum->value.real = tmb->value.real - tma->value.real;
+			sum.type = tma->type;
+			if (tma->type == INT) sum.value.integer = tmb->value.integer - tma->value.integer;
+			if (tma->type == DOUBLE) sum.value.real = tmb->value.real - tma->value.real;
 		}
-		dStackPush(&ds, sum);
+		dStackPush(&ds, &sum);
 		dStackPrint(&ds);
 	}
 	else if(i->op == MUL) {
-		tData *tma, *tmb, *mul;
+		tData *tma, *tmb, mul;
 		tma = dStackPop(&ds);
 		tmb = dStackPop(&ds);
 		if (tma->type == tmb->type){
-			mul->type = tma->type;
-			if (tma->type == INT) mul->value.integer = (tma->value.integer)*(tmb->value.integer);
-			if (tma->type == DOUBLE) mul->value.real = (tma->value.real)*(tmb->value.real);
+			mul.type = tma->type;
+			if (tma->type == INT) mul.value.integer = (tma->value.integer)*(tmb->value.integer);
+			if (tma->type == DOUBLE) mul.value.real = (tma->value.real)*(tmb->value.real);
 		}
-		dStackPush(&ds, mul);
+		dStackPush(&ds, &mul);
 		dStackPrint(&ds);
 	}
 }
