@@ -96,12 +96,9 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 				break;
 			case DOUBLE:
 				if (tmp->type == DOUBLE)
-				data->value.real = tmp->value.real;
-				else if (tmp->type == INT) {
-					printf("!%g\n", (double)tmp->value.integer);
+					data->value.real = tmp->value.real;
+				else if (tmp->type == INT)
 					data->value.real = (double)tmp->value.integer;
-					printf("!%g, %d\n", data->value.real, data->type);
-				}
 				break;
 			case STRING:
 				data->value.str = tmp->value.str;
@@ -145,20 +142,19 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 		tmb = dStackPop(&ds);
 		if (tma->type == tmb->type){
 			sum.type = tma->type;
-			if (tma->type == INT) sum.value.integer = tma->value.integer - tmb->value.integer;
-			if (tma->type == DOUBLE) sum.value.real = tma->value.real - tmb->value.real;
+			if (tma->type == INT) sum.value.integer = tmb->value.integer - tma->value.integer;
+			if (tma->type == DOUBLE) sum.value.real = tmb->value.real - tma->value.real;
 		}
 		else if (tma->type == DOUBLE && tmb->type == INT)
 		{
 			sum.type = tma->type;
-			sum.value.real = tma->value.real - (double)tmb->value.integer;
+			sum.value.real = tmb->value.real - (double)tma->value.integer;
 		}
 		else if (tma->type == INT && tmb->type == DOUBLE)
 		{
 			sum.type = tmb->type;
-			sum.value.real = (double)tma->value.integer - tmb->value.real;
+			sum.value.real = (double)tmb->value.integer - tma->value.real;
 		}
-		sum.value.real = -sum.value.real;
 		dStackPush(&ds, &sum);
 		dStackPrint(&ds);
 	}
@@ -412,6 +408,40 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 		}
 		return (*endwhile-1);
 	}
+	else if (i->op == INSTR_CALL_FUNC) {
+		int *func = (int *)i->addr3;
+		int jnasl = j-1;
+		for(j = *func; s->inst[j]->type != INST_END_FUNCTION; ){
+			j = executeInstr(s->inst[j]->instr, s, j);
+		}
+		return jnasl;
+	}
+	else if (i->op == INSTR_ASS_ARG) {
+		tData *arg = (tData *)i->addr3;
+		tData *tmp;
+		tmp = dStackPop(&ds);
+		switch (arg->type) {
+			case INT:
+				arg->value.integer = tmp->value.integer;
+				break;
+			case DOUBLE:
+				if (tmp->type == DOUBLE)
+					arg->value.real = tmp->value.real;
+				else if (tmp->type == INT)
+					arg->value.real = (double)tmp->value.integer;
+				break;
+			case STRING:
+				arg->value.str = tmp->value.str;
+				break;
+			case BOOLEAN:
+				arg->value.boolean = tmp->value.boolean;
+				break;
+			default:
+			//arr;
+				break;
+			}
+		dStackPrint(&ds);
+	}
 	return j-1;
 }
 
@@ -467,6 +497,9 @@ void printInstr(tInstruction *i) {
 	else if (i->op == PLUS) {
 			printf("PLUS\n");
 		}
+	else if (i->op == MINUS) {
+			printf("MINUS\n");
+		}
 	else if (i->op == INSTR_IF) {
 			printf("INSTR_IF\n");
 		}
@@ -480,17 +513,20 @@ void printInstr(tInstruction *i) {
 			printf("COMPARISON\n");
 		}
 	else if (i->op == INSTR_WHILE) {
-<<<<<<< HEAD
-			printf("INSTR_WHILE\n");
-		}
-	else if (i->op == INSTR_BREAK) {
-			printf("INSTR_BREAK\n");
-		}
-=======
 		printf("WHILE\n");
 	}
-
->>>>>>> 2b8323f5e27322d40ab27f04d22ea0184b21c9bc
+	else if (i->op == INCREMENT) {
+			printf("INCREMENT\n");
+		}
+	else if (i->op == DECREMENT) {
+		printf("DECREMENT\n");
+	}
+	else if (i->op == INSTR_CALL_FUNC) {
+			printf("INSTR_CALL_FUNC\n");
+		}
+	else if (i->op == INSTR_ASS_ARG) {
+			printf("INSTR_ASS_ARG\n");
+		}
 }
 /**/
 
