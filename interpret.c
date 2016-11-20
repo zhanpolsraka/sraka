@@ -75,11 +75,13 @@ int execute(tInstrStack *s) {
 
 //Exekuce jednotlive instrukci
 int executeInstr(tInstruction *i, tInstrStack *s, int j) {
-	printInstr(i);	
+	printInstr(i);
+	if (i->op == INSTR_WHILE) {
+			printf("INSTR_WHILE\n");
+		}	
 	//INSERT - push hodnoty do DStack
 	if(i->op == INSTR_INSERT) {
 		tData *data = (tData *)i->addr1;
-		printf("type %d, value %d\n", data->type, data->value.integer);
 		dStackPush(&ds, data);
 		dStackPrint(&ds);
 	}
@@ -233,6 +235,28 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 			}
 		}
 	}
+	else if (i->op == INSTR_WHILE) {
+		tData *con;
+		int *cond = (int *)i->addr1, *endwhile = (int *)i->addr2;
+		con = dStackPop(&ds);
+		printf("%s\n", con->value.boolean ?"true":"false");
+		int begwhile = j;
+		j--;
+		while (con->value.boolean)
+		{
+			j = begwhile - 1;
+			while ( j != *endwhile ) {
+				j = executeInstr(s->inst[j]->instr, s, j); 
+			}
+			j = *cond;
+			while ( j != begwhile ) {
+				j = executeInstr(s->inst[j]->instr, s, j); 
+			}
+			con = dStackPop(&ds);
+			printf("%s\n", con->value.boolean ?"true":"false");
+		}
+		return (*endwhile-1);
+	}
 	return j-1;
 }
 
@@ -299,6 +323,12 @@ void printInstr(tInstruction *i) {
 		}
 	else if (i->op == COMPARISON) {
 			printf("COMPARISON\n");
+		}
+	else if (i->op == INSTR_WHILE) {
+			printf("INSTR_WHILE\n");
+		}
+	else if (i->op == INSTR_BREAK) {
+			printf("INSTR_BREAK\n");
 		}
 }
 /**/
