@@ -87,6 +87,8 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 	}
 	//ASSIGNMENT - prirazeni hodnoty z vrcholu zasobniku DStack do promenne na adrese addr3
 	else if(i->op == ASSIGNMENT) {
+		
+		dStackPrint(&ds);
 		tData *data = (tData *)i->addr3;
 		tData *tmp;
 		tmp = dStackPop(&ds);
@@ -179,9 +181,6 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 		}
 		dStackPush(&ds, &sum);
 		dStackPrint(&ds);
-	}
-	else if (i->op == INCREMENT) {
-		printf("INC\n");
 	}
 	else if(i->op == COMPARISON) {
 		tData *tma, *tmb, com;
@@ -363,6 +362,70 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 		dStackPush(&ds, &com);
 		dStackPrint(&ds);
 	}
+	else if(i->op == AND) {
+		tData *tma, *tmb, com;
+		bool a, b;
+		tma = dStackPop(&ds);
+		tmb = dStackPop(&ds);
+		switch (tma->type) {
+			case INT:
+				a = (bool)tma->value.integer;
+				break;
+			case DOUBLE:
+				a = (bool)tma->value.integer;
+				break;
+			case BOOLEAN:
+				a = tma->value.boolean;
+				break;
+		}
+		switch (tmb->type) {
+			case INT:
+				b = (bool)tmb->value.integer;
+				break;
+			case DOUBLE:
+				b = (bool)tmb->value.integer;
+				break;
+			case BOOLEAN:
+				b = tmb->value.boolean;
+				break;
+		}
+		com.type = BOOLEAN;
+		com.value.boolean = a && b;
+		dStackPush(&ds, &com);
+		dStackPrint(&ds);
+	}
+	else if(i->op == OR) {
+		tData *tma, *tmb, com;
+		bool a, b;
+		tma = dStackPop(&ds);
+		tmb = dStackPop(&ds);
+		switch (tma->type) {
+			case INT:
+				a = (bool)tma->value.integer;
+				break;
+			case DOUBLE:
+				a = (bool)tma->value.integer;
+				break;
+			case BOOLEAN:
+				a = tma->value.boolean;
+				break;
+		}
+		switch (tmb->type) {
+			case INT:
+				b = (bool)tmb->value.integer;
+				break;
+			case DOUBLE:
+				b = (bool)tmb->value.integer;
+				break;
+			case BOOLEAN:
+				b = tmb->value.boolean;
+				break;
+		}
+		com.type = BOOLEAN;
+		com.value.boolean = a || b;
+		dStackPush(&ds, &com);
+		dStackPrint(&ds);
+	}
 	else if (i->op == INSTR_IF) {
 		tData *con;
 		int *endif = (int *)i->addr1, *begel = (int *)i->addr2, *endel = (int *)i->addr3;
@@ -414,6 +477,8 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 		for(j = *func; s->inst[j]->type != INST_END_FUNCTION; ){
 			j = executeInstr(s->inst[j]->instr, s, j);
 		}
+		printf("return jnasl %d\n", jnasl);
+		dStackPrint(&ds);
 		return jnasl;
 	}
 	else if (i->op == INSTR_ASS_ARG) {
@@ -473,7 +538,7 @@ void printInstr(tInstruction *i) {
 	//------------------------------------ASSIGNMENT
 	else if (i->op == ASSIGNMENT) {
 		tData *data = dStackTop(&ds);
-		switch ((dStackTop(&ds))->type) {
+		switch (data->type) {
 			case INT:
 				printf("ASSIGN %d to %p\n", data->value.integer, i->addr3);
 				break;
@@ -511,6 +576,9 @@ void printInstr(tInstruction *i) {
 		}
 	else if (i->op == COMPARISON) {
 			printf("COMPARISON\n");
+		}
+	else if (i->op == LESS) {
+			printf("LESS\n");
 		}
 	else if (i->op == INSTR_WHILE) {
 		printf("WHILE\n");
