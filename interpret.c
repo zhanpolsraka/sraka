@@ -94,13 +94,17 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 		tmp = dStackPop(&ds);
 		switch (data->type) {
 			case INT:
-				data->value.integer = tmp->value.integer;
+				if (tmp->type == INT)
+					data->value.integer = tmp->value.integer;
+				else
+					printf("Assignment between %d and %d\n", data->type, tmp->type);
 				break;
 			case DOUBLE:
 				if (tmp->type == DOUBLE)
 					data->value.real = tmp->value.real;
 				else if (tmp->type == INT)
 					data->value.real = (double)tmp->value.integer;
+				else printf("Undefined type of data\n");
 				break;
 			case STRING:
 				data->value.str = tmp->value.str;
@@ -109,7 +113,7 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 				data->value.boolean = tmp->value.boolean;
 				break;
 			default:
-			//arr;
+				printf("Undefined type of variable\n");
 				break;
 		}
 		
@@ -474,10 +478,14 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 	else if (i->op == INSTR_CALL_FUNC) {
 		int *func = (int *)i->addr3;
 		int jnasl = j-1;
-		for(j = *func; s->inst[j]->type != INST_END_FUNCTION; ){
+		j = *func;
+		while( s->inst[j]->type != INST_END_FUNCTION ){
 			j = executeInstr(s->inst[j]->instr, s, j);
+			if (s->inst[j]->type == INST_END_FUNCTION){
+			}
+		
 		}
-		printf("return jnasl %d\n", jnasl);
+		//printf("dSteck after function cykle\n");
 		dStackPrint(&ds);
 		return jnasl;
 	}
@@ -502,7 +510,7 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 				arg->value.boolean = tmp->value.boolean;
 				break;
 			default:
-			//arr;
+				printf("undefined type of arg in INSTR_ASS_ARG in %d instruction\n", j);
 				break;
 			}
 		dStackPrint(&ds);
@@ -595,6 +603,9 @@ void printInstr(tInstruction *i) {
 	else if (i->op == INSTR_ASS_ARG) {
 			printf("INSTR_ASS_ARG\n");
 		}
+	else {
+		printf("UNKNOWN INSTRUCTION\n");
+	}
 }
 /**/
 
@@ -604,11 +615,11 @@ void dStackInit(tDStack *s) {
 		s->top = NIL_VALUE;
 		s->arr = malloc(MAX_STACK * sizeof(tData *));
 		if (s->arr == NULL) {
-			//ALOC_ERR
+			printf("Allocation error of stack\n");
 		}
 	}
 	else {
-		//err
+		printf("Pointer on stack is undefined\n");
 	}
 }
 
@@ -644,7 +655,7 @@ void dStackPrint(tDStack *s) {
 void dStackPush(tDStack *s, tData *data) {
 	if (s != NULL) {
 		if (dStackIsFull(&ds)) {
-			//err/realloc
+			printf("DataStack is full\n");
 		}
 		else {
 			s->top++;
@@ -652,7 +663,7 @@ void dStackPush(tDStack *s, tData *data) {
 		}
 	}
 	else {
-		//err
+		printf("Pointer on stack is undefined\n");
 	}
 }
 
@@ -661,7 +672,7 @@ tData *dStackPop(tDStack *s) {
 	tData *tmp;
 	if (s != NULL) {
 		if (dStackIsEmpty(&ds)) {
-			//err
+			printf("Pop from empty dataStack\n");
 			return NULL;
 		}
 		else {
@@ -672,7 +683,7 @@ tData *dStackPop(tDStack *s) {
 		}
 	}
 	else {
-		//err
+		printf("Pointer on stack is undefined\n");
 		return NULL;
 	}
 }
@@ -684,7 +695,7 @@ tData *dStackTop(tDStack *s) {
 		return dStackIsEmpty(s) ? NULL : s->arr[s->top];
 	}
 	else {
-		//err
+		printf("Pointer on stack is undefined\n");
 		return NULL;
 	}
 }
@@ -706,7 +717,7 @@ int dStackSize(tDStack *s) {
 //Prehodi polozky DStack mezi sebou
 void dStackReverse(tDStack *s) {
 	if (s == NULL) {
-		//err
+		printf("Pointer on stack is undefined\n");
 	}
 	else if (!dStackIsEmpty(s)) {
 		tData *tmp;
