@@ -1,0 +1,24 @@
+//0
+class Main{
+	static void run(){
+		f1();
+		f2();
+		f3();
+	}
+	static void f1(){
+		Data.x = 1;
+	}
+	static void f2(){
+		Data.x = 2;
+	}
+}
+
+class Data{
+	static int x = 0;
+}
+
+class Outer{
+	static void f3(){
+		Data.x = 3;
+	}
+}
