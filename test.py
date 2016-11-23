@@ -28,7 +28,7 @@ for r in REGEXLIST:
 	for f in ALL:
 		res = re.search(r, f)
 		if res:
-			TESTSLIST.append(res.group())
+			TESTSLIST.append(f)
 
 #Executing
 for test in TESTSLIST:
