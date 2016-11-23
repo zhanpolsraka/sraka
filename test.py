@@ -28,10 +28,10 @@ class colors:
 	BOLD = '\033[1m'
   
 def ok(test):
-	print colors.BOLD + test + colors.OK + ' - OK' + colors.ENDC
+	print colors.HEADER + test + colors.OK + ' - OK' + colors.ENDC
 
 def notOK(test, expected, got):
-	print colors.BOLD + test + colors.FAIL + ' - FAIL: ' + \
+	print colors.HEADER + test + colors.FAIL + ' - FAIL: ' + \
 	'Expected ' + expected + ', but got', got, colors.ENDC
 
 def createTestList():

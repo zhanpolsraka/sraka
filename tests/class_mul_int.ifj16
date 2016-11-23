@@ -1,0 +1,15 @@
+//0
+class Main{
+	static int res;
+	static void run() {
+		Main.res = A.val * B.val;
+	}
+}
+
+class A{
+	static int val = 1;
+}
+
+class B{
+	static int val = 2;
+}
