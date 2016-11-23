@@ -5,7 +5,7 @@ class Main{
 	static void run(){
 		int hypotenuse = hyp();
 	}
-	static void hyp(){
+	static int hyp(){
 		int aa = Main.a*Main.a;
 		int bb = Main.b*Main.b;
 		int c = aa+bb;
