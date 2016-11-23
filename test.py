@@ -12,14 +12,25 @@
 #Alternatively, you could name a source code for computing say factorial
 #function as factorial.ifj16. If you can't come up with an appropriate name,
 #use other[UNIQUE ID].ifj16. Have fun with debugging!
-import sys
-import os
+import sys, os, re
+
+ALL=[f for f in os.listdir('./tests')]
+REGEXLIST=[]
+TESTSLIST=[]
 
 if sys.argv[1:] == ['all']:
-	TESTSLIST=[f for f in os.listdir('./tests')]
+	REGEXLIST=ALL
 else:
-	TESTSLIST=sys.argv[1:]
+	REGEXLIST=sys.argv[1:]
 
+#Creating TESTLIST
+for r in REGEXLIST:
+	for f in ALL:
+		res = re.search(r, f)
+		if res:
+			TESTSLIST.append(res.group())
+
+#Executing
 for test in TESTSLIST:
 	os.environ["IFJ16"] = "tests/"+test
 	#print os.environ["IFJ16"]

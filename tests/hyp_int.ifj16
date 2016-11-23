@@ -1,0 +1,13 @@
+class Main{
+	static int a = 3;
+	static int b = 4;
+	static void run(){
+		int hypotenuse = hyp();
+	}
+	static void hyp(){
+		int aa = Main.a*Main.a;
+		int bb = Main.b*Main.b;
+		int c = aa+bb;
+		return c;
+	}
+}
