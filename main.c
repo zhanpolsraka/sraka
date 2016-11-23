@@ -1,4 +1,4 @@
-
+#include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include "str.h"
@@ -14,7 +14,9 @@ int main()
 {
     bool error = true;
     // otevirame zdrojovy soubor
-    open_source("text.txt");
+    char *filename = getenv("IFJ16");
+    printf("---------------FILENAME: %s---------------\n", filename);
+    open_source(filename);
     // inicializuje tabulku symbolu
     tTree tree;
     tree_init(&tree);

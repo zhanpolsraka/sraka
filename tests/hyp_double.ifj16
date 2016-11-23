@@ -1,0 +1,14 @@
+//0
+class Main{
+	static double a = 3;
+	static double b = 4;
+	static void run(){
+		double hypotenuse = hyp();
+	}
+	static double hyp(){
+		double aa = Main.a*Main.a;
+		double bb = Main.b*Main.b;
+		double c = aa+bb;
+		return c;
+	}
+}
