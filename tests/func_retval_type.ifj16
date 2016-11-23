@@ -1,0 +1,9 @@
+//4
+class Main{
+	static void run(){
+		int a = retint();
+	}
+	static int retint(){
+		return 1.5;
+	}
+}
