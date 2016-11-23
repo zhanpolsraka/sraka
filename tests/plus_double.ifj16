@@ -1,0 +1,7 @@
+class Main{
+	static double a = 5;
+	static void run(){
+		double b = 1;
+		double as = Main.a +b+3;
+	}
+}
