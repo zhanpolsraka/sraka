@@ -20,11 +20,12 @@ REGEXLIST=[]
 TESTSLIST=[]
 
 class colors:
-  OK = '\033[92m'
-  WARNING = '\033[93m'
-  FAIL = '\033[91m'
-  ENDC = '\033[0m'
-  BOLD = '\033[1m'
+	HEADER = '\033[95m'
+	OK = '\033[92m'
+	WARNING = '\033[93m'
+	FAIL = '\033[91m'
+	ENDC = '\033[0m'
+	BOLD = '\033[1m'
   
 def ok(test):
 	print colors.BOLD + test + colors.OK + ' - OK' + colors.ENDC
