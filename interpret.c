@@ -75,7 +75,10 @@ int execute(tInstrStack *s) {
 
 //Exekuce jednotlive instrukci
 int executeInstr(tInstruction *i, tInstrStack *s, int j) {
-	printInstr(i);	
+	printInstr(i);
+	if (i->op == INSTR_WHILE) {
+			printf("INSTR_WHILE\n");
+		}	
 	//INSERT - push hodnoty do DStack
 	if(i->op == INSTR_INSERT) {
 		tData *data = (tData *)i->addr1;
@@ -84,21 +87,24 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 	}
 	//ASSIGNMENT - prirazeni hodnoty z vrcholu zasobniku DStack do promenne na adrese addr3
 	else if(i->op == ASSIGNMENT) {
+		
+		dStackPrint(&ds);
 		tData *data = (tData *)i->addr3;
 		tData *tmp;
 		tmp = dStackPop(&ds);
 		switch (data->type) {
 			case INT:
-				data->value.integer = tmp->value.integer;
+				if (tmp->type == INT)
+					data->value.integer = tmp->value.integer;
+				else
+					printf("Assignment between %d and %d\n", data->type, tmp->type);
 				break;
 			case DOUBLE:
 				if (tmp->type == DOUBLE)
-				data->value.real = tmp->value.real;
-				else if (tmp->type == INT) {
-					printf("!%g\n", (double)tmp->value.integer);
+					data->value.real = tmp->value.real;
+				else if (tmp->type == INT)
 					data->value.real = (double)tmp->value.integer;
-					printf("!%g, %d\n", data->value.real, data->type);
-				}
+				else printf("Undefined type of data\n");
 				break;
 			case STRING:
 				data->value.str = tmp->value.str;
@@ -107,7 +113,7 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 				data->value.boolean = tmp->value.boolean;
 				break;
 			default:
-			//arr;
+				printf("Undefined type of variable\n");
 				break;
 		}
 		
@@ -142,20 +148,19 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 		tmb = dStackPop(&ds);
 		if (tma->type == tmb->type){
 			sum.type = tma->type;
-			if (tma->type == INT) sum.value.integer = tma->value.integer - tmb->value.integer;
-			if (tma->type == DOUBLE) sum.value.real = tma->value.real - tmb->value.real;
+			if (tma->type == INT) sum.value.integer = tmb->value.integer - tma->value.integer;
+			if (tma->type == DOUBLE) sum.value.real = tmb->value.real - tma->value.real;
 		}
 		else if (tma->type == DOUBLE && tmb->type == INT)
 		{
 			sum.type = tma->type;
-			sum.value.real = tma->value.real - (double)tmb->value.integer;
+			sum.value.real = tmb->value.real - (double)tma->value.integer;
 		}
 		else if (tma->type == INT && tmb->type == DOUBLE)
 		{
 			sum.type = tmb->type;
-			sum.value.real = (double)tma->value.integer - tmb->value.real;
+			sum.value.real = (double)tmb->value.integer - tma->value.real;
 		}
-		sum.value.real = -sum.value.real;
 		dStackPush(&ds, &sum);
 		dStackPrint(&ds);
 	}
@@ -211,6 +216,220 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 		dStackPush(&ds, &com);
 		dStackPrint(&ds);
 	}
+	else if (i->op == LESS) {
+		tData *tma, *tmb, com;
+		tmb = dStackPop(&ds);
+		tma = dStackPop(&ds);
+		com.type = BOOLEAN;
+		switch (tma->type) {
+			case INT:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.integer < tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.integer < tmb->value.real);
+						break;
+				}
+				break;
+			case DOUBLE:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.real < tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.real < tmb->value.real);
+						break;
+				}
+				break;
+		}
+		dStackPush(&ds, &com);
+		dStackPrint(&ds);
+	}
+	else if (i->op == GREATER) {
+		tData *tma, *tmb, com;
+		tmb = dStackPop(&ds);
+		tma = dStackPop(&ds);
+		com.type = BOOLEAN;
+		switch (tma->type) {
+			case INT:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.integer > tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.integer > tmb->value.real);
+						break;
+				}
+				break;
+			case DOUBLE:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.real > tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.real > tmb->value.real);
+						break;
+				}
+				break;
+		}
+		dStackPush(&ds, &com);
+		dStackPrint(&ds);
+	}
+	else if (i->op == LOEQ) {
+		tData *tma, *tmb, com;
+		tmb = dStackPop(&ds);
+		tma = dStackPop(&ds);
+		com.type = BOOLEAN;
+		switch (tma->type) {
+			case INT:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.integer <= tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.integer <= tmb->value.real);
+						break;
+				}
+				break;
+			case DOUBLE:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.real <= tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.real <= tmb->value.real);
+						break;
+				}
+				break;
+		}
+		dStackPush(&ds, &com);
+		dStackPrint(&ds);
+	}
+	else if (i->op == GOEQ) {
+		tData *tma, *tmb, com;
+		tmb = dStackPop(&ds);
+		tma = dStackPop(&ds);
+		com.type = BOOLEAN;
+		switch (tma->type) {
+			case INT:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.integer >= tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.integer >= tmb->value.real);
+						break;
+				}
+				break;
+			case DOUBLE:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.real >= tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.real >= tmb->value.real);
+						break;
+				}
+				break;
+		}
+		dStackPush(&ds, &com);
+		dStackPrint(&ds);
+	}
+	else if(i->op == NEQ) {
+		tData *tma, *tmb, com;
+		tma = dStackPop(&ds);
+		tmb = dStackPop(&ds);
+		com.type = BOOLEAN;
+		switch (tma->type) {
+			case INT:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.integer != tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.integer != tmb->value.real);
+						break;
+				}
+				break;
+			case DOUBLE:
+				switch (tmb->type) {
+					case INT:
+						com.value.boolean = (tma->value.real != tmb->value.integer);
+						break;
+					case DOUBLE:
+						com.value.boolean = (tma->value.real != tmb->value.real);
+						break;
+				}
+				break;
+		}
+		dStackPush(&ds, &com);
+		dStackPrint(&ds);
+	}
+	else if(i->op == AND) {
+		tData *tma, *tmb, com;
+		bool a, b;
+		tma = dStackPop(&ds);
+		tmb = dStackPop(&ds);
+		switch (tma->type) {
+			case INT:
+				a = (bool)tma->value.integer;
+				break;
+			case DOUBLE:
+				a = (bool)tma->value.integer;
+				break;
+			case BOOLEAN:
+				a = tma->value.boolean;
+				break;
+		}
+		switch (tmb->type) {
+			case INT:
+				b = (bool)tmb->value.integer;
+				break;
+			case DOUBLE:
+				b = (bool)tmb->value.integer;
+				break;
+			case BOOLEAN:
+				b = tmb->value.boolean;
+				break;
+		}
+		com.type = BOOLEAN;
+		com.value.boolean = a && b;
+		dStackPush(&ds, &com);
+		dStackPrint(&ds);
+	}
+	else if(i->op == OR) {
+		tData *tma, *tmb, com;
+		bool a, b;
+		tma = dStackPop(&ds);
+		tmb = dStackPop(&ds);
+		switch (tma->type) {
+			case INT:
+				a = (bool)tma->value.integer;
+				break;
+			case DOUBLE:
+				a = (bool)tma->value.integer;
+				break;
+			case BOOLEAN:
+				a = tma->value.boolean;
+				break;
+		}
+		switch (tmb->type) {
+			case INT:
+				b = (bool)tmb->value.integer;
+				break;
+			case DOUBLE:
+				b = (bool)tmb->value.integer;
+				break;
+			case BOOLEAN:
+				b = tmb->value.boolean;
+				break;
+		}
+		com.type = BOOLEAN;
+		com.value.boolean = a || b;
+		dStackPush(&ds, &com);
+		dStackPrint(&ds);
+	}
 	else if (i->op == INSTR_IF) {
 		tData *con;
 		int *endif = (int *)i->addr1, *begel = (int *)i->addr2, *endel = (int *)i->addr3;
@@ -224,13 +443,77 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 			if (begel != NULL && endel != NULL)
 				return (*endel-1);
 		}
-		else {
+		else if (begel != NULL && endel != NULL) {
 			j = *begel;
-			printf("begel == %d\n", *begel);
 			while ( j > *endel ) { 
 				j = executeInstr(s->inst[j]->instr, s, j); 
 			}
 		}
+		else if (endif != NULL) {
+			return (*endif-1);
+		}
+	}
+	else if (i->op == INSTR_WHILE) {
+		tData *con;
+		int *cond = (int *)i->addr1, *endwhile = (int *)i->addr2;
+		con = dStackPop(&ds);
+		printf("%s\n", con->value.boolean ?"true":"false");
+		int begwhile = j;
+		j--;
+		while (con->value.boolean)
+		{
+			j = begwhile - 1;
+			while ( j != *endwhile ) {
+				j = executeInstr(s->inst[j]->instr, s, j); 
+			}
+			j = *cond;
+			while ( j != begwhile ) {
+				j = executeInstr(s->inst[j]->instr, s, j); 
+			}
+			con = dStackPop(&ds);
+			printf("%s\n", con->value.boolean ?"true":"false");
+		}
+		return (*endwhile-1);
+	}
+	else if (i->op == INSTR_CALL_FUNC) {
+		int *func = (int *)i->addr3;
+		int jnasl = j-1;
+		j = *func;
+		while( s->inst[j]->type != INST_END_FUNCTION ){
+			j = executeInstr(s->inst[j]->instr, s, j);
+			if (s->inst[j]->type == INST_END_FUNCTION){
+			}
+		
+		}
+		//printf("dSteck after function cykle\n");
+		dStackPrint(&ds);
+		return jnasl;
+	}
+	else if (i->op == INSTR_ASS_ARG) {
+		tData *arg = (tData *)i->addr3;
+		tData *tmp;
+		tmp = dStackPop(&ds);
+		switch (arg->type) {
+			case INT:
+				arg->value.integer = tmp->value.integer;
+				break;
+			case DOUBLE:
+				if (tmp->type == DOUBLE)
+					arg->value.real = tmp->value.real;
+				else if (tmp->type == INT)
+					arg->value.real = (double)tmp->value.integer;
+				break;
+			case STRING:
+				arg->value.str = tmp->value.str;
+				break;
+			case BOOLEAN:
+				arg->value.boolean = tmp->value.boolean;
+				break;
+			default:
+				printf("undefined type of arg in INSTR_ASS_ARG in %d instruction\n", j);
+				break;
+			}
+		dStackPrint(&ds);
 	}
 	return j-1;
 }
@@ -263,7 +546,7 @@ void printInstr(tInstruction *i) {
 	//------------------------------------ASSIGNMENT
 	else if (i->op == ASSIGNMENT) {
 		tData *data = dStackTop(&ds);
-		switch ((dStackTop(&ds))->type) {
+		switch (data->type) {
 			case INT:
 				printf("ASSIGN %d to %p\n", data->value.integer, i->addr3);
 				break;
@@ -287,6 +570,9 @@ void printInstr(tInstruction *i) {
 	else if (i->op == PLUS) {
 			printf("PLUS\n");
 		}
+	else if (i->op == MINUS) {
+			printf("MINUS\n");
+		}
 	else if (i->op == INSTR_IF) {
 			printf("INSTR_IF\n");
 		}
@@ -299,6 +585,27 @@ void printInstr(tInstruction *i) {
 	else if (i->op == COMPARISON) {
 			printf("COMPARISON\n");
 		}
+	else if (i->op == LESS) {
+			printf("LESS\n");
+		}
+	else if (i->op == INSTR_WHILE) {
+		printf("WHILE\n");
+	}
+	else if (i->op == INCREMENT) {
+			printf("INCREMENT\n");
+		}
+	else if (i->op == DECREMENT) {
+		printf("DECREMENT\n");
+	}
+	else if (i->op == INSTR_CALL_FUNC) {
+			printf("INSTR_CALL_FUNC\n");
+		}
+	else if (i->op == INSTR_ASS_ARG) {
+			printf("INSTR_ASS_ARG\n");
+		}
+	else {
+		printf("UNKNOWN INSTRUCTION\n");
+	}
 }
 /**/
 
@@ -308,11 +615,11 @@ void dStackInit(tDStack *s) {
 		s->top = NIL_VALUE;
 		s->arr = malloc(MAX_STACK * sizeof(tData *));
 		if (s->arr == NULL) {
-			//ALOC_ERR
+			printf("Allocation error of stack\n");
 		}
 	}
 	else {
-		//err
+		printf("Pointer on stack is undefined\n");
 	}
 }
 
@@ -348,7 +655,7 @@ void dStackPrint(tDStack *s) {
 void dStackPush(tDStack *s, tData *data) {
 	if (s != NULL) {
 		if (dStackIsFull(&ds)) {
-			//err/realloc
+			printf("DataStack is full\n");
 		}
 		else {
 			s->top++;
@@ -356,7 +663,7 @@ void dStackPush(tDStack *s, tData *data) {
 		}
 	}
 	else {
-		//err
+		printf("Pointer on stack is undefined\n");
 	}
 }
 
@@ -365,7 +672,7 @@ tData *dStackPop(tDStack *s) {
 	tData *tmp;
 	if (s != NULL) {
 		if (dStackIsEmpty(&ds)) {
-			//err
+			printf("Pop from empty dataStack\n");
 			return NULL;
 		}
 		else {
@@ -376,7 +683,7 @@ tData *dStackPop(tDStack *s) {
 		}
 	}
 	else {
-		//err
+		printf("Pointer on stack is undefined\n");
 		return NULL;
 	}
 }
@@ -388,7 +695,7 @@ tData *dStackTop(tDStack *s) {
 		return dStackIsEmpty(s) ? NULL : s->arr[s->top];
 	}
 	else {
-		//err
+		printf("Pointer on stack is undefined\n");
 		return NULL;
 	}
 }
@@ -410,7 +717,7 @@ int dStackSize(tDStack *s) {
 //Prehodi polozky DStack mezi sebou
 void dStackReverse(tDStack *s) {
 	if (s == NULL) {
-		//err
+		printf("Pointer on stack is undefined\n");
 	}
 	else if (!dStackIsEmpty(s)) {
 		tData *tmp;
