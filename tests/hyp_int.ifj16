@@ -1,3 +1,4 @@
+//0
 class Main{
 	static int a = 3;
 	static int b = 4;

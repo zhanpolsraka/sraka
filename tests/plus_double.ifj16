@@ -1,3 +1,4 @@
+//0
 class Main{
 	static double a = 5;
 	static void run(){
