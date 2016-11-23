@@ -11,6 +11,9 @@ typedef enum{
 	PR_ERROR,		// chyba programu		(4)
 	ALLOC_ERROR,	// chyba alokaci		(5)
 
+	INPUT_NUM_ERROR, // behova chyba pri nacitani ciselne hodnoty ze vstupu (7)
+	OTHER_ERROR,	 // ostatni behove chyby (10)
+
 	UNK_CLASS_BEG,
 	MAIN_EXIST,
 	FUNC_EXIST,
@@ -35,7 +38,8 @@ typedef enum{
 	UNDEF_VAR,
 	UNDEF_CLASS,
 	UNDEF_FUNC,
-	ILLEGAL_OP
+	ILLEGAL_OP,
+	RET_VALUE
 
 }tErrReas;
 

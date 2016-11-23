@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "str.h"
-#include "test_scanner.h"
+//#include "test_scanner.h"
 #include "test_error.h"
 
 char * desc_error[] = {
@@ -34,17 +34,18 @@ char *reasons[37] = {
 	"undefined variable",
 	"undefined class",
 	"undefined function",
-	"illegal operation"
+	"illegal operation",
+	"error return value"
 };
 
 /*	Funkce vypise chybu na stderr */
 void throw_err(tErrType err_type, int reason){
 
 	fprintf(stderr, "\n%s %s", desc_error[err_type], reasons[reason]);
-	if (err_type != SEM_ERROR)
-		fprintf(stderr, " on line %d\n\n", line);
+	if (err_type != SEM_ERROR);
+//		fprintf(stderr, " on line %d\n\n", line);
 	else
 		fprintf(stderr, "\n\n");
-	
+
 	exit(-1);
 }
