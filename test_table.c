@@ -249,7 +249,7 @@ void create_node(string *id, NodeType type, int v_type, bool stat)
 	}
 	// ve funkci neexistuji promenne
 	else if (new->type == VARIABLE && tree->active_func != NULL &&
-		tree->active_func->variables == NULL)
+		tree->active_func->variables == NULL && !stat)
 		{
 			tree->active_func->variables = new;
 	}

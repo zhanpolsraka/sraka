@@ -312,6 +312,7 @@ void proc_ride_struct(tInstrStack *st, tInstruction *instr, int beg_indx)
     }
     else if (instr->op == INSTR_WHILE)
     {
+        i++;
         // ziskame index zacatku podminky
         while (st->inst[i]->instr->op != INSTR_BEG_COND)
             i++;
@@ -641,7 +642,7 @@ char *name_inst[] =
     "NOT", 0, 0, "OR", "AND", 0, 0, 0,
     0, 0, 0, 0, 0, "ASSIGNMENT", "INCREMENT",
     "DECREMENT", 0, 0, 0, 0, "INSTR_CALL_FUNC",
-    "INSTR_RETURN", "INSTR_ASS_ARG", "INSTR_INSERT",
+     "INSTR_ASS_ARG", "INSTR_INSERT",
     "INSTR_MOD", "INSTR_INC", "INSTR_DEC",
     "INSTR_BEG_COND", "INSTR_IF", "INSTR_ELSE",
     "INSTR_CONTINUE", "INSTR_BREAK",

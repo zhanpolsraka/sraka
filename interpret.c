@@ -88,7 +88,6 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 	//ASSIGNMENT - prirazeni hodnoty z vrcholu zasobniku DStack do promenne na adrese addr3
 	else if(i->op == ASSIGNMENT) {
 		
-		dStackPrint(&ds);
 		tData *data = (tData *)i->addr3;
 		tData *tmp;
 		tmp = dStackPop(&ds);
@@ -482,6 +481,7 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 		while( s->inst[j]->type != INST_END_FUNCTION ){
 			j = executeInstr(s->inst[j]->instr, s, j);
 			if (s->inst[j]->type == INST_END_FUNCTION){
+				dStackPrint(&ds);
 			}
 		
 		}
@@ -515,6 +515,79 @@ int executeInstr(tInstruction *i, tInstrStack *s, int j) {
 			}
 		dStackPrint(&ds);
 	}
+	else if (i->op == INSTR_PRINT) {
+		tData *str;
+		str = dStackPop(&ds);
+		switch (str->type)
+		{
+			case INT:
+		}
+
+	}
+	else if (i->op == INSTR_R_INT) {
+		tData data; 
+		data.type = INT;
+		data.value.integer = read_int();
+
+		dStackPush(&ds, &data);
+
+	}
+	else if (i->op == INSTR_R_STRING) {
+		tData data; 
+		data.type = STRING;
+		data.value.str = read_string();
+
+		dStackPush(&ds, &data);
+
+	}
+	else if (i->op == INSTR_R_DOUBLE) {
+		tData data; 
+		data.type = DOUBLE;
+		data.value.real = read_double();
+
+		dStackPush(&ds, &data);
+
+	}
+	else if (i->op == INSTR_LENGTH) {
+		tData *str = dStackPop(&ds);
+		tData len;
+
+		len.type = INT;
+		len.value.integer = length(str->value.string);
+
+		dStackPush(&ds, &len);
+	}
+	else if (i->op == INSTR_SUBSTR) {
+		tData *n = dStackPop(&ds),
+			*i = dStackPop(&ds),
+			*str = dStackPop(&ds);
+		tData retstr;
+
+		retstr.type = STRING;
+		retstr.value.str = substr(str->value.string, i.value.integer, n.value.integer);
+
+		dStackPush(&ds, &retstr);
+	}
+	else if (i->op == INSTR_COMPARE) {
+		tData *s2 = dStackPop(&ds),
+			*s1 = dStackPop(&ds);
+		tData i;
+
+		i.type = INT;
+		i.value.integer = compare(s1->value.string, s2->value.string);
+
+		dStackPush(&ds, &i);
+	}
+	else if (i->op == INSTR_SORT) {
+		tData *str = dStackPop(&ds);
+		tData retstr;
+
+		retstr.type = STRING;
+		retstr.value.string = sort(str->value.string);
+
+		dStackPush(&ds, &retstr);
+	}
+
 	return j-1;
 }
 

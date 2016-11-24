@@ -10,7 +10,7 @@ import os
 
 FILES=""
 MODE="<<<<<<< HEAD\n"
-ERASEMOD=">>>>>>> 3af8dad401fe07dda119c5b04c78bca8f888b2f4\n"
+ERASEMOD=">>>>>>> 2b8323f5e27322d40ab27f04d22ea0184b21c9bc\n"
 SEP="=======\n"
 ERASE=0
 
