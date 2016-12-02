@@ -1,9 +1,7 @@
-//3
-class Main
-{
-	static void run()
-	{
-		Main.func();
-		return;
-	}
+//2
+class Main{
+    static void run() {
+        // chybi zavorky.
+        int a = ifj16.readInt;
+    }
 }

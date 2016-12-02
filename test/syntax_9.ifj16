@@ -1,10 +1,7 @@
-//3
-class Main
-{
-	static void run()
-	{
-		int x;
-		double x;
-		String x;
-	}
+//2
+class Main{
+    static void run() {
+        // Nepodporuje se multiple assignment.
+        int a, b = 5, 6;
+    }
 }

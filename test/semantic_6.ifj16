@@ -1,0 +1,9 @@
+//3
+class Main
+{
+	static void run()
+	{
+		Clas.func();
+		return;
+	}
+}
