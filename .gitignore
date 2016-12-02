@@ -1,2 +1,4 @@
 *.txt
 *.o
+tests/logs/*
+ifj16
