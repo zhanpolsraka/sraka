@@ -1,8 +1,9 @@
+//3
+//Chybny strednik
 class Main
 {
 	static void run()
 	{
-		Main.run();
-		return;
+		return
 	}
 }
