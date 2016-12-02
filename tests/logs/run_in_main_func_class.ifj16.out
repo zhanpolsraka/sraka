@@ -1,0 +1,5 @@
+
+Unknown class begin: expected "class" keyword on line 5
+
+---------------FILENAME: tests/run_in_main_func_class.ifj16---------------
+----> parser, class

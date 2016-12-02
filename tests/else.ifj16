@@ -1,0 +1,17 @@
+class Main {
+	static void run(){
+		int x = 2;
+		if (x != 2) {
+			ifj16.print("NOT OK");
+		}
+		else {
+			x = 1;
+			if (x == 1) {
+				ifj16.print("OK");
+			} 
+			else {
+				ifj16.print("NOT OK");
+			}
+		}
+	}
+}
