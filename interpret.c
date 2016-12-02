@@ -418,7 +418,7 @@ void control_instr(tExprStack *exp_st, tInstruction *instr, int *indx)
             /* if if-block has been processed succesfull -> skip else-block */
             if (if_succ == numb_block)
                 *indx = *(int *)instr->addr1;
-            if_succ++;
+            if_succ--;
         break;
 
         /* end of the block */
@@ -431,8 +431,6 @@ void control_instr(tExprStack *exp_st, tInstruction *instr, int *indx)
             }
             else
             {
-                if (if_succ)
-                    if_succ--;
                 if (numb_block)
                     numb_block--;
             }
