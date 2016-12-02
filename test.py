@@ -7,11 +7,11 @@
 ####################################################
 #HOW TO NAME YOUR TESTS:
 #Compose the filename of tags, that describe what functionality is
-#tested. For example, a source with + and - operators on int and 
+#tested. For example, a source with + and - operators on int and
 #double values could be named as plus_minus_double_int.ifj16
 #Alternatively, you could name a source code for computing say factorial
 #function as factorial.ifj16. If you can't come up with an appropriate name,
-#use other[UNIQUE ID].ifj16. 
+#use other[UNIQUE ID].ifj16.
 #It's recommended to use Python 2.7. Have fun with debugging!
 import sys, os, subprocess, re
 
@@ -28,7 +28,7 @@ class colors:
 	FAIL = '\033[91m'
 	ENDC = '\033[0m'
 	BOLD = '\033[1m'
-  
+
 def ok(test):
 	print colors.HEADER + test + colors.OK + ' - OK' + colors.ENDC
 
