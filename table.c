@@ -1,3 +1,15 @@
+/* **************************************************************************/
+/* Projekt:             Implementace interpretu jazyka IFJ16				*/
+/* Predmet:             Formalni jazyky a prekladace (IFJ)					*/
+/* Soubor:              table.c  (Binarni strom, tabulka symbolu)			*/
+/*																			*/
+/* Autor login:      	Ermak Aleksei		xermak00						*/
+/*                     	Khaitovich Anna		xkhait00						*/
+/*						Nesmelova Antonina	xnesmel00						*/
+/*						Fedorenko Oleg		xfedor00						*/
+/*						Fedin Evgenii		xfedin00						*/
+/* **************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -5,9 +17,9 @@
 #include <stdbool.h>
 
 #include "str.h"
-#include "test_scanner.h"
-#include "test_error.h"
-#include "test_table_remake.h"
+#include "scanner.h"
+#include "error.h"
+#include "table.h"
 #include "buffer.h"
 
 // globalni ukazatel na strom

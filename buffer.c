@@ -1,8 +1,20 @@
+/* **************************************************************************/
+/* Projekt:             Implementace interpretu jazyka IFJ16				*/
+/* Predmet:             Formalni jazyky a prekladace (IFJ)					*/
+/* Soubor:              buffer.c  (Prace s ukazateli na alokovanou pamet)	*/
+/*																			*/
+/* Autor login:      	Ermak Aleksei		xermak00						*/
+/*                     	Khaitovich Anna		xkhait00						*/
+/*						Nesmelova Antonina	xnesmel00						*/
+/*						Fedorenko Oleg		xfedor00						*/
+/*						Fedin Evgenii		xfedin00						*/
+/* **************************************************************************/
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "test_error.h"
+#include "error.h"
 #include "buffer.h"
 
 tBuffer *buff = NULL;

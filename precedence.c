@@ -1,3 +1,15 @@
+/* **************************************************************************/
+/* Projekt:             Implementace interpretu jazyka IFJ16				*/
+/* Predmet:             Formalni jazyky a prekladace (IFJ)					*/
+/* Soubor:              precedence.c  (Precedencni analyza)					*/
+/*																			*/
+/* Autor login:      	Ermak Aleksei		xermak00						*/
+/*                     	Khaitovich Anna		xkhait00						*/
+/*						Nesmelova Antonina	xnesmel00						*/
+/*						Fedorenko Oleg		xfedor00						*/
+/*						Fedin Evgenii		xfedin00						*/
+/* **************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -5,15 +17,15 @@
 #include <stdbool.h>
 
 #include "str.h"
-#include "test_scanner.h"
-#include "test_error.h"
-#include "test_table_remake.h"
-#include "test_parser_remake.h"
-#include "test_precedence_remake.h"
-#include "test_inst.h"
+#include "scanner.h"
+#include "error.h"
+#include "table.h"
+#include "parser.h"
+#include "precedence.h"
+#include "instructions.h"
 #include "frame.h"
-#include "test_interpret_remake.h"
-#include "in_built.h"
+#include "interpret.h"
+#include "built_in.h"
 #include "buffer.h"
 
 bool cond_expr = false;
@@ -99,10 +111,7 @@ void expression(Token *token, string *target)
 			else if (arg_expr)
 				arg_expr--;
 			else if (target)
-			{
-				//printf("target %s\n", target->str);
 				create_instruction(ASSIGNMENT, NULL, NULL, target);
-			}
 			break;
 		}
 		//print_stack(main_st);
@@ -113,10 +122,7 @@ void expression(Token *token, string *target)
 				equal_str(entery->data->attr.str, "false"))
 				entery->data->type = VALUE;
 			else
-			{
-				//printf("----> precedence, expression 1\n");
 				throw_err(SYN_ERROR, UNK_EXPR, entery->data->attr.str);
-			}
 		}
 
 		// kontrola volani funkci ve vyrazu: za id jde leva zavorka
@@ -189,10 +195,7 @@ void turn_to_expr(tStack *m_st, tItem *handle[])
 	while ((m_st->stack[m_st->top])->i_type != DOWN_BOARD)
 	{	// pokud pocet elementu v handlu je vetsi nez 3, vyvola chybu
 		if (i > 2)
-		{
-			//printf("----> precedence, turn_to_expr\n");
 			throw_err(SYN_ERROR, UNK_EXPR, "no token");
-		}
 
 		help = stack_pop(m_st);
 		handle[i] = help;
@@ -275,11 +278,7 @@ void generate_instr(tItem *handle[])
 		free_handle(handle, 1);
 	}
 	else
-	{
-		//printf("----> precedence, generate_instr\n");
 		throw_err(SYN_ERROR, UNK_EXPR, "no token");
-	}
-		//printf("\nNo rules are found!\n");
 }
 
 void call_func_expr(Token *token, string *str)
@@ -289,10 +288,7 @@ void call_func_expr(Token *token, string *str)
 	if (token->type == R_PAR)
 	{
 		if (is_built_in(str->str))
-			{
-				//printf("----> precedence, call_func_expr 1\n");
 				throw_err(SEM_TYPE_ERROR, CALL_FUNC_ARG, str->str);
-			}
 		go_back(token);
 		if (!equal_str(str->str, "ifj16.readInt") &&
 			!equal_str(str->str, "ifj16.readDouble") &&
@@ -306,10 +302,7 @@ void call_func_expr(Token *token, string *str)
 	if (equal_str(str->str, "ifj16.readInt") ||
 		equal_str(str->str, "ifj16.readDouble") ||
 		equal_str(str->str, "ifj16.readString"))
-	{
-		//printf("----> precedence, call_func_expr 2\n");
 		throw_err(SEM_TYPE_ERROR, CALL_FUNC_ARG, str->str);
-	}
 
 	int n_arg = 0;
 	while (token->type != R_PAR)
@@ -324,10 +317,7 @@ void call_func_expr(Token *token, string *str)
 			(equal_str(str->str, "ifj16.compare") && token->type == R_PAR && n_arg != 2) ||
 			(equal_str(str->str, "ifj16.find") && token->type == R_PAR && n_arg != 2) ||
 			(token->type != COMMA && token->type != R_PAR))
-		{
-			//printf("----> precedence, call_func_expr 3\n");
 			throw_err(SEM_TYPE_ERROR, CALL_FUNC_ARG, str->str);
-		}
 	}
 	// vytvorime ramec promennych pokud volana funkce neni vestavena
 	if (!is_built_in(str->str))
@@ -362,10 +352,7 @@ tItem *get_data(Token *token)
     // cteme dalsi token ...
 	get_token(token);
 	if (token->type == T_EOF)
-	{
-		//printf("----> precedence, get_data\n");
 		throw_err(SYN_ERROR, UNK_EXPR, "end of file");
-	}
     // ... a ukladame informace do polozky
 	strCopyString(&new_item->data->attr, &token->attr);
 	new_item->data->type = token->type;
@@ -392,10 +379,7 @@ void shift_elem_to_term(tStack *src, tStack *dst)
     {
 		help = stack_pop(src);
 		if (help == NULL)
-		{
-			//printf("----> precedence, shift_elem_to_term\n");
 			throw_err(INT_ERROR, 0, 0);
-		}
 
 		stack_push(dst, help);
 	}
@@ -409,10 +393,7 @@ void shift_all_elem(tStack *src, tStack *dst)
     {
 		help = stack_pop(src);
 		if (help == NULL)
-		{
-			//printf("----> precedence, shift_all_elem\n");
 			throw_err(INT_ERROR, 0, 0);
-		}
 
 		stack_push(dst, help);
 	}

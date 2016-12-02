@@ -1,14 +1,25 @@
+/* **************************************************************************/
+/* Projekt:             Implementace interpretu jazyka IFJ16				*/
+/* Predmet:             Formalni jazyky a prekladace (IFJ)					*/
+/* Soubor:              main.c  (Hlavni modul)          					*/
+/*																			*/
+/* Autor login:      	Ermak Aleksei		xermak00						*/
+/*                     	Khaitovich Anna		xkhait00						*/
+/*						Nesmelova Antonina	xnesmel00						*/
+/*						Fedorenko Oleg		xfedor00						*/
+/*						Fedin Evgenii		xfedin00						*/
+/* **************************************************************************/
 
 #include <stdio.h>
 #include <stdbool.h>
 #include "str.h"
-#include "test_scanner.h"
-#include "test_table_remake.h"
-#include "test_parser_remake.h"
-#include "test_inst.h"
+#include "scanner.h"
+#include "table.h"
+#include "parser.h"
+#include "instructions.h"
 #include "frame.h"
-#include "test_interpret_remake.h"
-#include "test_error.h"
+#include "interpret.h"
+#include "error.h"
 #include "buffer.h"
 
 int main(int argc, const char *argv[])
@@ -17,7 +28,7 @@ int main(int argc, const char *argv[])
     create_buffer();
     // kontrolujeme parametry
     if (argc != 2)
-       throw_err(INT_ERROR, 0, 0);
+        throw_err(INT_ERROR, 0, 0);
     // otevirame zdrojovy soubor
     open_source(argv[1]);
     // inicializuje tabulku symbolu

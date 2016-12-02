@@ -5,8 +5,8 @@ BIN=ifj16
 CC=gcc
 RM=rm -f
 
-ALL: str.o test_scanner.o test_error.o buffer.o test_precedence_remake.o  test_table_remake.o test_inst.o test_parser_remake.o frame.o test_interpret_remake.o in_built.o main.o
-	$(CC) $(CFLAGS) -o $(BIN) str.o test_scanner.o test_error.o buffer.o test_precedence_remake.o test_table_remake.o test_inst.o test_parser_remake.o frame.o test_interpret_remake.o in_built.o main.o
+ALL: str.o scanner.o error.o buffer.o precedence.o  table.o instructions.o parser.o frame.o interpret.o built_in.o main.o
+	$(CC) $(CFLAGS) -o $(BIN) str.o scanner.o error.o buffer.o precedence.o table.o instructions.o parser.o frame.o interpret.o built_in.o main.o
 run:
 	./$(BIN)
 

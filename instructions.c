@@ -1,3 +1,15 @@
+/* **************************************************************************/
+/* Projekt:             Implementace interpretu jazyka IFJ16				*/
+/* Predmet:             Formalni jazyky a prekladace (IFJ)					*/
+/* Soubor:              instructions.c  (Prace s instrukcemi)				*/
+/*																			*/
+/* Autor login:      	Ermak Aleksei		xermak00						*/
+/*                     	Khaitovich Anna		xkhait00						*/
+/*						Nesmelova Antonina	xnesmel00						*/
+/*						Fedorenko Oleg		xfedor00						*/
+/*						Fedin Evgenii		xfedin00						*/
+/* **************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -5,11 +17,11 @@
 #include <stdbool.h>
 
 #include "str.h"
-#include "test_error.h"
-#include "test_scanner.h"
-#include "test_parser_remake.h"
-#include "test_inst.h"
-#include "test_table_remake.h"
+#include "error.h"
+#include "scanner.h"
+#include "parser.h"
+#include "instructions.h"
+#include "table.h"
 #include "frame.h"
 #include "buffer.h"
 

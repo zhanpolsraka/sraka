@@ -1,15 +1,13 @@
-/* ************************* scanner.c **************************************/
+/* **************************************************************************/
 /* Projekt:             Implementace interpretu jazyka IFJ16				*/
 /* Predmet:             Formalni jazyky a prekladace (IFJ)					*/
-/* Soubor:              test_scanner.c - Lexikalni analyzator				*/
-/* Kodovani:            UTF-8												*/
-/* Datum:               													*/
-/* Varianta zadani:															*/
-/* Autori, login:       				      								*/
-/*                     														*/
+/* Soubor:              scanner.c  (Lexikalni analyza)						*/
 /*																			*/
-/*																			*/
-/*																			*/
+/* Autor login:      	Ermak Aleksei		xermak00						*/
+/*                     	Khaitovich Anna		xkhait00						*/
+/*						Nesmelova Antonina	xnesmel00						*/
+/*						Fedorenko Oleg		xfedor00						*/
+/*						Fedin Evgenii		xfedin00						*/
 /* **************************************************************************/
 
 #include <stdio.h>
@@ -19,13 +17,13 @@
 #include <stdbool.h>
 
 #include "str.h"
-#include "test_scanner.h"
-#include "test_error.h"
+#include "scanner.h"
+#include "error.h"
 #include "buffer.h"
 // pocet klicovych slov
-#define NUM_KEYW 11
+#define NUM_KEYW 10
 // klicova slova
-char * key_words[] = {	"break", "class", "continue", "do", "else", "false", "for",
+char * key_words[] = {	"break", "class", "continue", "do", "else", "false",
 						"if", "return", "static", "true", "while"};
 // pocet radku kodu
 int line = 1;
@@ -56,7 +54,7 @@ typedef enum{
 }sState;
 
 // zdrojovy soubor
-FILE *file;
+FILE *file = NULL;
 // stav zapisu retezce
 bool isWr = false;
 // stav zapisu doubl s E/e
@@ -75,15 +73,17 @@ void editAtt(string *s1, char c)
 /*	Nastavi soubor se ktereho scanner bude cist lexemy		*/
 void open_source(const char *file_name)
 {
-	if ((file = fopen(file_name, "r")) == NULL)
+	if (file_name)
 	{
-		throw_err(INT_ERROR, 0, 0);
+		if ((file = fopen(file_name, "r")) == NULL)
+			throw_err(INT_ERROR, 0, 0);
 	}
 }
 
 void close_source()
 {
-	fclose(file);
+	if (file)
+		fclose(file);
 }
 
 /*	Funce zpracovani lexemu		*/

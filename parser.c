@@ -1,3 +1,15 @@
+/* **************************************************************************/
+/* Projekt:             Implementace interpretu jazyka IFJ16				*/
+/* Predmet:             Formalni jazyky a prekladace (IFJ)					*/
+/* Soubor:              parser.c  (Syntakticka analyza)						*/
+/*																			*/
+/* Autor login:      	Ermak Aleksei		xermak00						*/
+/*                     	Khaitovich Anna		xkhait00						*/
+/*						Nesmelova Antonina	xnesmel00						*/
+/*						Fedorenko Oleg		xfedor00						*/
+/*						Fedin Evgenii		xfedin00						*/
+/* **************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -5,15 +17,15 @@
 #include <stdbool.h>
 
 #include "str.h"
-#include "test_scanner.h"
-#include "test_error.h"
-#include "test_table_remake.h"
-#include "test_parser_remake.h"
-#include "test_precedence_remake.h"
-#include "test_inst.h"
+#include "scanner.h"
+#include "error.h"
+#include "table.h"
+#include "parser.h"
+#include "precedence.h"
+#include "instructions.h"
 #include "frame.h"
-#include "test_interpret_remake.h"
-#include "in_built.h"
+#include "interpret.h"
+#include "built_in.h"
 #include "buffer.h"
 
 // indikace tridy 'Main'
@@ -39,10 +51,7 @@ void parsing()
 {
 	Token *token = NULL;
 	if ((token = malloc(sizeof(Token))) == NULL)
-	{
-		//printf("-----------------> parsing, 1\n");
 		throw_err(INT_ERROR, ALL_STRUCT, 0);
-	}
 	mark_mem(token);
 	strInit(&token->attr);
 	strInit(&help.identifier);
@@ -50,7 +59,7 @@ void parsing()
 	class_list(token);
 }
 
-// zpracovani celeho programmu
+/* Zpracovani seznamu trid */
 void class_list(Token *token)
 {
 	// cteme prvni token
@@ -68,32 +77,25 @@ void class_list(Token *token)
 	class_list(token);
 }
 
+/* Zpracovani statickych promennych uvnitr tridy */
 void class(Token *token)
 {
     // vyvola chybu pokud prectene tokeny neznamenaji zacatek tridy
 	if (token->type != KEYWORD || strcmp(token->attr.str, "class"))
-	{
-		//printf("----> parser, class\n");
 		throw_err(SYN_ERROR, EXPEC_TOKEN, "class");
-	}
 
     // potrebuje identifikator tridy
 	get_token(token);
 	if (token->type != IDENTIFIER)
-	{
-		//printf("----> parser, class\n");
 		throw_err(SYN_ERROR, EXPEC_TOKEN, "identifier");
-	}
+
 	//kontroluje neni-li dana trida "ifj16"
 	if (equal_str(token->attr.str, "ifj16"))
 		throw_err(SEM_ERROR, CLASS_EXIST, "ifj16");
 
 	// kontroluje jestli trida se stejnym id uz existuje
 	else if (get_node(&token->attr, CLASS, NULL) != NULL)
-	{
-		//printf("----> parser, class\n");
 		throw_err(SEM_ERROR, CLASS_EXIST, token->attr.str);
-	}
 
 	// vytvorime novou tridu v tabulce symbolu
 	create_node(&token->attr, 0, CLASS, false);
@@ -112,15 +114,13 @@ void class(Token *token)
 	// potrebuje zacatek tela tridy (levou hranatou zavorku)
 	get_token(token);
 	if (token->type != L_VIN)
-	{
-		//printf("----> parser, class\n");
 		throw_err(SYN_ERROR, EXPEC_TOKEN, "{");
-	}
 
 	// zpracuje telo tridy
 	class_body(token);
 }
 
+/* Zpracovani tela tridy */
 void class_body(Token *token)
 {
 	get_token(token);
@@ -137,10 +137,7 @@ void class_body(Token *token)
 			// potrebujeme id promenne/funkci
 			get_token(token);
 			if (token->type != IDENTIFIER)
-			{
-				//printf("----> parser, class_body\n");
 				throw_err(SYN_ERROR, EXPEC_TOKEN, "identifier");
-			}
 
 			strCopyString(&help.identifier, &token->attr);
 
@@ -179,20 +176,15 @@ void class_body(Token *token)
 			in_main = false;
 	}
 	else
-	{
-		//printf("----> parser, class_body\n");
 		throw_err(SYN_ERROR, UNK_EXPR, token->attr.str);
-	}
 }
 
+/* Zparcovani funkci */
 void function(Token *token)
 {
     // zavola chybu pokud funkce se stejnym id uz existuje
     if (get_node(&help.identifier, FUNCTION, class_node->functions) != NULL)
-	{
-		//printf("----> parser, function\n");
 		throw_err(SEM_ERROR, FUNC_EXIST, help.identifier.str);
-	}
 
     // detekujeme funkci "run" v tride "Main"
     if (equal_str(help.identifier.str, "run"))
@@ -200,10 +192,7 @@ void function(Token *token)
         if (in_main)
         {
             if (help.type != VOID)
-			{
-				//printf("----> parser, function\n");
 				throw_err(SEM_TYPE_ERROR, TYPE_KEY, 0);
-			}
 
             // nastavime flag
             run_flag = true;
@@ -221,15 +210,13 @@ void function(Token *token)
 	// precteme levou hranatou zavorku (zacatek bloku)
 	get_token(token);
 	if (token->type != L_VIN)
-	{
-		//printf("----> parser, function\n");
 		throw_err(SYN_ERROR, EXPEC_TOKEN, "{");
-	}
 
 	// zpracujeme telo funkci
     statement_list(token);
 }
 
+/* Zpracovani seznamu argumentu */
 void argument_list(Token *token)
 {
 	get_token(token);
@@ -244,10 +231,7 @@ void argument_list(Token *token)
         // potrebujeme id argumentu
 		get_token(token);
 		if (token->type != IDENTIFIER)
-		{
-			//printf("----> parser, argument_list\n");
 			throw_err(SYN_ERROR, EXPEC_TOKEN, "identifier");
-		}
 
 		// vytvorime novy argument funkci v tabulce symbolu
 		create_arg(&token->attr, help.type);
@@ -256,10 +240,7 @@ void argument_list(Token *token)
 		next_arg(token);
 	}
 	else
-	{
-		//printf("----> parser, argument_list\n");
 		throw_err(SYN_ERROR, UNK_EXPR, token->attr.str);
-	}
 }
 
 void next_arg(Token *token)
@@ -273,10 +254,7 @@ void next_arg(Token *token)
 			help.type = token->type;
 			get_token(token);
 			if (token->type != IDENTIFIER)
-			{
-				//printf("----> parser, next_arg 1\n");
 				throw_err(SYN_ERROR, EXPEC_TOKEN, "identifier");
-			}
 
 			// vytvorime novy argument funkci v tabulce symbolu
 			create_arg(&token->attr, help.type);
@@ -285,21 +263,16 @@ void next_arg(Token *token)
 			next_arg(token);
 		}
 		else
-		{
-			//printf("----> parser, next_arg 2\n");
 			throw_err(SYN_ERROR, UNK_EXPR, token->attr.str);
-		}
 	}
 	// konec seznamu argumentu
 	else if (token->type == R_PAR)
         return;
 	else
-	{
-		//printf("----> parser, next_arg 3\n");
 		throw_err(SYN_ERROR, UNK_EXPR, token->attr.str);
-	}
 }
 
+/* Zpracovani seznamu argumentu volane funkci */
 void call_arg_list(Token *token)
 {
 	get_token(token);
@@ -312,10 +285,7 @@ void call_arg_list(Token *token)
 			equal_str(help.identifier.str, "ifj16.compare") ||
 			equal_str(help.identifier.str, "ifj16.find") ||
 			equal_str(help.identifier.str, "ifj16.sort"))
-		{
-			//printf("----> parser, call_arg_list\n");
 			throw_err(SEM_TYPE_ERROR, CALL_FUNC_ARG, help.identifier.str);
-		}
 		else
 		{
 			// vytvorime instrukce CREATE_FRAME pokud volana funkce neni vestavena
@@ -335,10 +305,7 @@ void call_arg_list(Token *token)
 	arg_expr++;
 	expression(token, NULL);
 	if (!equal_str(help.identifier.str, "ifj16.print"))
-		{
-			arg++;
-			//create_instruction(INSTR_ASS_ARG,  NULL, NULL, NULL);
-		}
+		arg++;
 	// pokracujeme zpracovani seznamu argumentu
 	if (!equal_str(help.identifier.str, "ifj16.print"))
 		call_next_arg(token);
@@ -383,12 +350,10 @@ void call_next_arg(Token *token)
 		return;
 	}
 	else
-	{
-		//printf("----> parser, call_next_list\n");
 		throw_err(SYN_ERROR, UNK_EXPR, token->attr.str);
-	}
 }
 
+/* Zpracovani tela funkci */
 void statement_list(Token *token)
 {
 	get_token(token);
@@ -399,10 +364,7 @@ void statement_list(Token *token)
         // potrebujeme id promenne
 		get_token(token);
 		if (token->type != IDENTIFIER)
-		{
-			//printf("----> parser, statement_list\n");
 			throw_err(SYN_ERROR, EXPEC_TOKEN, "identifier");
-		}
 		strCopyString(&help.identifier, &token->attr);
 		help.st_static = false;
 
@@ -467,10 +429,7 @@ void statement_list(Token *token)
 	}
 	// chyba
 	else
-	{
-		//printf("----> parser, statement_list\n");
 		throw_err(SYN_ERROR, UNK_EXPR, token->attr.str);
-	}
 
 	// pokracujeme rekurzivni zpracovani vyrazu
 	statement_list(token);
@@ -504,10 +463,7 @@ void ride_struct(Token *token)
 				// precteme levou hranatou zavorku (zacatek bloku)
 				get_token(token);
 				if (token->type != L_VIN)
-				{
-					//printf("----> parser, ride_struct\n");
 					throw_err(SYN_ERROR, EXPEC_TOKEN, "{");
-				}
 				// zpracujeme blok
 				condition++;
 				statement_list(token);
@@ -517,10 +473,7 @@ void ride_struct(Token *token)
 				go_back(token);
 		}
 		else
-		{
-			//printf("----> parser, ride_struct\n");
 			throw_err(SYN_ERROR, UNK_EXPR, token->attr.str);
-		}
     }
     else if (equal_str(token->attr.str, "while"))
     {
@@ -541,10 +494,7 @@ void ride_struct(Token *token)
 			create_instruction(INSTR_END_BLCK, NULL, NULL, NULL);
 		}
 		else
-		{
-			//printf("----> parser, ride_struct\n");
 			throw_err(SYN_ERROR, UNK_EXPR, token->attr.str);
-		}
     }
     else if (equal_str(token->attr.str, "return"))
     {
@@ -570,12 +520,10 @@ void ride_struct(Token *token)
 		get_token(token);
 	}
     else
-	{
-		//printf("----> parser, ride_struct\n");
 		throw_err(SYN_ERROR, UNK_EXPR, token->attr.str);
-	}
 }
 
+/* Definice promenne */
 void define_var(Token *token)
 {
 	// zkontrolujeme na pritomnost promenne se stejnym nazvem ve funkci/tride
@@ -602,12 +550,10 @@ void define_var(Token *token)
 		init_var(token);
     }
 	else
-	{
-		//printf("----> parser, define_var\n");
 		throw_err(SYN_ERROR, UNK_EXPR, token->attr.str);
-	}
 }
 
+/* Inicializace promenne */
 void init_var(Token *token)
 {
     if (token->type == ASSIGNMENT)
@@ -615,8 +561,5 @@ void init_var(Token *token)
     	expression(token, &help.identifier);
     }
 	else
-	{
-		//printf("----> parser, init_var\n");
 		throw_err(SYN_ERROR, UNK_EXPR, token->attr.str);
-	}
 }

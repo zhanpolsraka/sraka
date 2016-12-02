@@ -1,6 +1,6 @@
 #include <stdbool.h>
 #include "str.h"
-#include "test_error.h"
+#include "error.h"
 #include "buffer.h"
 
 //jednoducha knihovna pro praci s nekonecne dlouhymi retezci

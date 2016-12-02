@@ -1,18 +1,30 @@
+/* **************************************************************************/
+/* Projekt:             Implementace interpretu jazyka IFJ16				*/
+/* Predmet:             Formalni jazyky a prekladace (IFJ)					*/
+/* Soubor:              error.c  (Vypis chybovych hlasek)					*/
+/*																			*/
+/* Autor login:      	Ermak Aleksei		xermak00						*/
+/*                     	Khaitovich Anna		xkhait00						*/
+/*						Nesmelova Antonina	xnesmel00						*/
+/*						Fedorenko Oleg		xfedor00						*/
+/*						Fedin Evgenii		xfedin00						*/
+/* **************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
 #include <stdbool.h>
 
 #include "str.h"
-#include "test_scanner.h"
-#include "test_error.h"
-#include "test_table_remake.h"
-#include "test_parser_remake.h"
-#include "test_precedence_remake.h"
-#include "test_inst.h"
+#include "scanner.h"
+#include "error.h"
+#include "table.h"
+#include "parser.h"
+#include "precedence.h"
+#include "instructions.h"
 #include "frame.h"
-#include "test_interpret_remake.h"
-#include "in_built.h"
+#include "interpret.h"
+#include "built_in.h"
 #include "buffer.h"
 
 char * desc_error[12] = {

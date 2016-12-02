@@ -1,3 +1,15 @@
+/* **************************************************************************/
+/* Projekt:             Implementace interpretu jazyka IFJ16				*/
+/* Predmet:             Formalni jazyky a prekladace (IFJ)					*/
+/* Soubor:              interpret.c  (Interpretator)	       				*/
+/*																			*/
+/* Autor login:      	Ermak Aleksei		xermak00						*/
+/*                     	Khaitovich Anna		xkhait00						*/
+/*						Nesmelova Antonina	xnesmel00						*/
+/*						Fedorenko Oleg		xfedor00						*/
+/*						Fedin Evgenii		xfedin00						*/
+/* **************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -5,13 +17,13 @@
 #include <stdbool.h>
 
 #include "str.h"
-#include "test_inst.h"
-#include "test_scanner.h"
-#include "test_table_remake.h"
-#include "test_error.h"
+#include "instructions.h"
+#include "scanner.h"
+#include "table.h"
+#include "error.h"
 #include "frame.h"
-#include "test_interpret_remake.h"
-#include "in_built.h"
+#include "interpret.h"
+#include "built_in.h"
 #include "buffer.h"
 
 /* pointer on a stack frames of local variable */
@@ -559,9 +571,9 @@ void assign_instr(tExprStack *st, tInstruction *instr)
                         destination->value.integer = source->value.integer;
                     break;
 
-                    case DOUBLE:;
-                        destination->value.integer = source->value.real;
-                    break;
+                    // case DOUBLE:;
+                    //     destination->value.integer = source->value.real;
+                    // break;
 
                     case BOOLEAN:;
                         destination->value.integer = source->value.boolean;

@@ -1,11 +1,23 @@
+/* **************************************************************************/
+/* Projekt:             Implementace interpretu jazyka IFJ16				*/
+/* Predmet:             Formalni jazyky a prekladace (IFJ)					*/
+/* Soubor:              frame.c  (Prace s ramci promennych)		   			*/
+/*																			*/
+/* Autor login:      	Ermak Aleksei		xermak00						*/
+/*                     	Khaitovich Anna		xkhait00						*/
+/*						Nesmelova Antonina	xnesmel00						*/
+/*						Fedorenko Oleg		xfedor00						*/
+/*						Fedin Evgenii		xfedin00						*/
+/* **************************************************************************/
+
 #include <stdlib.h>
 #include <stdbool.h>
 
 #include "str.h"
-#include "test_error.h"
-#include "test_scanner.h"
-#include "test_table_remake.h"
-#include "test_inst.h"
+#include "error.h"
+#include "scanner.h"
+#include "table.h"
+#include "instructions.h"
 #include "frame.h"
 #include "buffer.h"
 
@@ -15,7 +27,6 @@ tFrameStack *st;
 tFrameStack *create_frame_stack()
 {
     // alokujeme misto pro novy zasobnik
-    //tFrameStack *st;
     if ((st = malloc(sizeof(tFrameStack))) == NULL)
         throw_err(INT_ERROR, ALL_STRUCT, 0);
     mark_mem(st);
