@@ -1,13 +1,13 @@
 /* **************************************************************************/
-/* Projekt:             Implementace interpretu jazyka IFJ16				*/
-/* Predmet:             Formalni jazyky a prekladace (IFJ)					*/
-/* Soubor:              interpret.c  (Interpretator)	       				*/
-/*																			*/
-/* Autor login:      	Ermak Aleksei		xermak00						*/
-/*                     	Khaitovich Anna		xkhait00						*/
-/*						Nesmelova Antonina	xnesmel00						*/
-/*						Fedorenko Oleg		xfedor00						*/
-/*						Fedin Evgenii		xfedin00						*/
+/* Projekt:             Implementace interpretu jazyka IFJ16		    */
+/* Predmet:             Formalni jazyky a prekladace (IFJ)		    */
+/* Soubor:              interpret.c  (Interpretator)	       		    */
+/*									    */
+/* Autor login:      	Ermak Aleksei		xermak00		    */
+/*                     	Khaitovich Anna		xkhait00		    */
+/*			Nesmelova Antonina	xnesmel00		    */
+/*			Fedorenko Oleg		xfedor00		    */
+/*			Fedin Evgenii		xfedin00		    */
 /* **************************************************************************/
 
 #include <stdio.h>
