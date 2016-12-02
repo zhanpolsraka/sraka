@@ -1,0 +1,9 @@
+class Main
+{
+	static void run()
+	{
+		int x;
+		double x;
+		String x;
+	}
+}

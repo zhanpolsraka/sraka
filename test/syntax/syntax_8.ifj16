@@ -1,0 +1,10 @@
+class Main
+{
+	static void run()
+	{
+		double s;
+		s = "42";
+		return;
+
+	}
+}

@@ -1,0 +1,9 @@
+class Main
+{
+	static void run()
+	{
+		int x;
+		x = "XNX"; //semantic error
+		return x;
+	}
+}
