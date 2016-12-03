@@ -1,7 +1,0 @@
-//0
-class Main{
-	static String a = "Hello, world!";
-	static void run(){
-		String b = Main.a;
-	}
-}

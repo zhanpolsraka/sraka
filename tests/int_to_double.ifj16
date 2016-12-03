@@ -1,7 +1,0 @@
-//0
-class Main{
-	static void run(){
-		int a = 1;
-		double b = a;
-	}
-}

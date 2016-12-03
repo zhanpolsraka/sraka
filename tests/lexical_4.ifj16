@@ -1,0 +1,9 @@
+//1
+class Main{
+	static void run(){
+		String ahoj = "Ahoj";
+	}
+}
+/*
+remove line 9 and run test
+*/

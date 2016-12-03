@@ -1,8 +1,0 @@
-//0
-class Main{
-	static double a = 5;
-	static void run(){
-		double b = 1;
-		double a = Main.a+b+3;
-	}
-}

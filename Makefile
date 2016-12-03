@@ -1,18 +1,18 @@
 CFLAGS=-std=c11 -Wall -Wextra -pedantic -g
 
 BIN=ifj16
-
 CC=gcc
 TEST=test.py
-RM=rm -f
+RM=rm -rf
 
-ALL: str.o test_scanner.o test_error.o test_precedence_remake.o  test_table.o test_inst.o test_parser_remake.o interpret.o main.o
-	$(CC) $(CFLAGS) -o $(BIN) str.o test_scanner.o test_error.o test_precedence_remake.o  test_table.o test_inst.o test_parser_remake.o interpret.o main.o
+ALL: str.o scanner.o error.o buffer.o precedence.o  table.o instructions.o parser.o frame.o interpret.o built_in.o main.o
+	$(CC) $(CFLAGS) -o $(BIN) str.o scanner.o error.o buffer.o precedence.o table.o instructions.o parser.o frame.o interpret.o built_in.o main.o
 
 run:
 	./$(BIN)
+
 test:
-	make
-	./$(TEST) all
+	python $(TEST) all
+
 clean:
-	$(RM) *.o $(BIN) tests/logs/*
+	$(RM) *.o $(BIN) tests/logs/*.out

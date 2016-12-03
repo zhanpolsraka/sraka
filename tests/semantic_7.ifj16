@@ -1,0 +1,12 @@
+//4
+class Main
+{
+	static void run()
+	{
+		Main.plus();
+	}
+	static void plus(int x)
+	{
+		return;
+	}
+}

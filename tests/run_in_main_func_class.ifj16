@@ -1,6 +1,0 @@
-//3
-class Main{
-	static int a = 3;
-	static int b = 4;
-	//run() is missing!!!
-}

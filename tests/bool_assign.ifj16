@@ -1,7 +1,0 @@
-//0
-class Main{
-	static boolean a = "true";
-	static void run(){
-		boolean b = Main.a;
-	}
-}
