@@ -1,0 +1,6 @@
+//1
+class Main{
+	static void run(){
+	int x = 0.5.5;
+	}
+}

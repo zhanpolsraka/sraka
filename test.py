@@ -15,8 +15,8 @@
 #It's recommended to use Python 2.7. Have fun with debugging!
 import sys, os, subprocess, re
 
-TESTDIR='./test/'
-LOGSDIR='./test/logs/'
+TESTDIR='./tests/'
+LOGSDIR='./tests/logs/'
 ALL=[f for f in os.listdir(TESTDIR) if not os.path.isdir(os.path.join(TESTDIR, f))]
 REGEXLIST=[]
 TESTSLIST=[]

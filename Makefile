@@ -11,8 +11,8 @@ ALL: str.o scanner.o error.o buffer.o precedence.o  table.o instructions.o parse
 run:
 	./$(BIN)
 
-test: $(TEST)
+test:
 	python $(TEST) all
 
 clean:
-	$(RM) *.o $(BIN) test/logs/*.out
+	$(RM) *.o $(BIN) tests/logs/*.out
