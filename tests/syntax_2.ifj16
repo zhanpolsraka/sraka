@@ -1,10 +1,6 @@
-//3
-class Main
-{
-	static void run()
-	{
-		int x;
-		x = 3;
-		return x;
-	}
-}
+//2
+class Main(
+    static void run() {
+        String a = "Main ma kulate zavorky";
+    }
+)

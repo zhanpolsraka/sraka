@@ -1,9 +1,14 @@
-//3
-//Chybny strednik
-class Main
-{
-	static void run()
-	{
-		return
-	}
+//2
+class Main() {
+    static void run() {
+        int a = 0;
+        int b = 1;
+        //Chybi zavorky.
+        if a > b {
+            a = a;
+        }
+        else {
+            a = b;
+        }
+    }
 }

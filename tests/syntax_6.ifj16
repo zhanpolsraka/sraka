@@ -1,9 +1,12 @@
-//3
-class Main
-{
-	static void run()
-	{
-		Clas.func();
-		return;
-	}
+//2
+class Test{
+    static void DoNothing() {
+        ;
+    }
+}
+class Main{
+    static void run() {
+    //Nesmi byt mezera mezi . a funkci.
+        Test. DoNothing();
+    }
 }

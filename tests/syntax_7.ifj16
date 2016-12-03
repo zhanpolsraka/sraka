@@ -1,12 +1,7 @@
-//4
-class Main
-{
-	static void run()
-	{
-		Main.plus();
-	}
-	static void plus(int x)
-	{
-		return;
-	}
+//2
+class Main() {
+    // return type required.
+    static run() {
+        ;
+    }
 }
