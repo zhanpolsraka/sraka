@@ -1,7 +1,7 @@
 //1
 class Main{
 	static void run(){
-		String ahoj = "Ahoj";
+		int x = 1?;
 	}
 }
 /*
