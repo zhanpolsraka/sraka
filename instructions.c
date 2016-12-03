@@ -658,7 +658,12 @@ char *name_inst[] =
     "NOT", 0, 0, "OR", "AND", 0, 0, 0,
     0, 0, 0, 0, 0, "ASSIGNMENT", "INCREMENT",
     "DECREMENT", 0, 0, 0, 0, "INSTR_CALL_FUNC",
+<<<<<<< HEAD:test_inst.c
+     "INSTR_ASS_ARG", "INSTR_INSERT",
+    "INSTR_MOD", "INSTR_INC", "INSTR_DEC",
+=======
     "INSTR_ASS_ARG", "INSTR_INSERT",
+>>>>>>> 80e4bf51b1e09aaf2336c539608915d5d703627b:instructions.c
     "INSTR_BEG_COND", "INSTR_IF", "INSTR_ELSE",
     "INSTR_CONTINUE", "INSTR_BREAK", "INSTR_END_BLCK",
     "INSTR_WHILE", "INSTR_RETURN", "INSTR_PRINT",
