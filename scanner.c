@@ -6,7 +6,7 @@
 /* Autor login:      	Ermak Aleksei		xermak00						*/
 /*                     	Khaitovich Anna		xkhait00						*/
 /*						Nesmelova Antonina	xnesmel00						*/
-/*						Fedorenko Oleh		xfedor07						*/
+/*						Fedorenko Oleg		xfedor00						*/
 /*						Fedin Evgenii		xfedin00						*/
 /* **************************************************************************/
 
