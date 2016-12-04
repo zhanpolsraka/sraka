@@ -12,12 +12,7 @@ void compare(tExprStack *st);
 
 char* sort (char *str);
 
-
-/* TODO +*/
-int find(char *s, char *pattern);
-
-void create_suffix_table(int *suff_table, char *pattern);
 void create_stop_symbols(int *stop_sbs, char *pattern);
-int suffix_match(char *pattern, int offset, int suffix_len);
+int find(char *s, char *pattern);
 
 #endif
