@@ -6,7 +6,7 @@
 /* Autor login:      	Ermak Aleksei		xermak00						*/
 /*                     	Khaitovich Anna		xkhait00						*/
 /*						Nesmelova Antonina	xnesmel00						*/
-/*						Fedorenko Oleg		xfedor00						*/
+/*						Fedorenko Oleh		xfedor07						*/
 /*						Fedin Evgenii		xfedin00						*/
 /* **************************************************************************/
 
@@ -253,7 +253,11 @@ void compare(tExprStack *st)
 
     stack_expr_push(st, new);
 }
-
+/** Original
+* F-ce pro razeni. Pouzit algoritmus Shell sort.
+* @param str    -> Retezec, ktery je treba seradit.
+* @return       -> Serazeny retezec.
+**/
 char* sort (char *str)
 {
     int length = strlen(str);
@@ -267,95 +271,55 @@ char* sort (char *str)
 	}
     return str;
 }
-
-/**
-* suffix_match
-* TODO
-* @param pattern    ->
-* @param offset     ->
-* @param suffix_len ->
-* @return           ->
-**/
-int suffix_match(char *pattern, int offset, int suffix_len) {
-    if (offset > suffix_len) {
-        return pattern[offset - suffix_len - 1]
-                != pattern[strlen(pattern) - suffix_len - 1]
-                && memcmp(pattern + strlen(pattern) - suffix_len,
-                        pattern + offset - suffix_len, suffix_len)
-                == 0;
-    }
-    else {
-        return memcmp(pattern + strlen(pattern) - offset,
-                    pattern, offset) == 0;
-    }
-}
-/**
-* create_suffix_table
-* TODO
-* @param suff_table     ->
-* @param pattern        ->
-* @return               -> returns nothing
-**/
-void create_suffix_table(int *suff_table, char *pattern) {
-    int patt_len = strlen(pattern);
-    for (int i = 0; i < patt_len; i++) {
-        int offset = patt_len;
-        while (offset && !suffix_match(pattern, offset, i)) {
-            --offset;
-        }
-        suff_table[patt_len - i - 1] = patt_len - offset;
-    }
-}
-/**
-* create_stop_symbols
-* TODO
-* @param stop_sbs   ->
-* @param pattern    ->
-* @return           -> returns nothing
+/** Original
+* Pomocna f-ce pro vypocet skoku.
+* @param stop_sbs   -> abeceda znaku.
+* @param pattern    -> vzorec, pro ktery je treba pocitat.
+* @return           -> nic.
 **/
 void create_stop_symbols(int *stop_sbs, char *pattern) {
+    int pat_len = strlen(pattern);
     for (int i = 0; i < ALPHABET_LEN; i++) {
-        stop_sbs[i] = strlen(pattern);
+        stop_sbs[i] = pat_len;
     }
-    for (int i = 0; (unsigned)i < strlen(pattern) - 1; i++) {
-        stop_sbs[(unsigned char)pattern[i]] = i;
+    for (int i = 0; i < pat_len - 1; i++) {
+        stop_sbs[(unsigned char)pattern[i]] = pat_len - i - 1;
     }
 }
 /**
-* find
-* TODO
-* @param s          ->
-* @param pattern    ->
-* @return           ->
+* Original.
+* F-ce vyhledavani podretezce v retezci. Pouzit Boyer-Mooruv algoritmus.
+* @param s          -> Text, ve kterem se bude vyhledavat pattern.
+* @param pattern    -> Vzorec, ktery se bude vyhledavat.
+* @return           -> Vrati index prvniho vyskytu patternu nebo -1 pri neuspechu.
 **/
 int find(char *s, char *pattern)
 {
 	int s_len = strlen(s);
 	int pat_len = strlen(pattern);
-	int stop_symbols[ALPHABET_LEN];
 
 	if (pat_len == 0)
 		return 0;
 	if (pat_len > s_len || s_len <= 0 || pat_len < 0 || !s || !pattern)
 		return NOT_FOUND;
 
-	int *suffix_table = malloc(sizeof(int)*pat_len);
-	create_suffix_table(suffix_table, pattern);
+    int stop_symbols[ALPHABET_LEN];
 	create_stop_symbols(stop_symbols, pattern);
 
-	for (int s_pos = 0; s_pos <= s_len - pat_len; ) {
-		int p_pos = pat_len - 1;
-
-		while (pattern[p_pos] == s[p_pos + s_pos]) {
-			if (p_pos == 0) {
-				free(suffix_table);
-				return s_pos;
-			}
-			--p_pos;
+	int p_pos = pat_len - 1;
+	int s_pos = p_pos;
+	while (s_pos <= s_len && p_pos >= 0) {
+		if (s[s_pos] == pattern[p_pos]) {
+			p_pos--;
+			s_pos--;
 		}
-		s_pos += max(suffix_table[p_pos],
-			p_pos - stop_symbols[(unsigned char)s[p_pos + s_pos]]);
+		else {
+            s_pos += stop_symbols[(unsigned char)s[s_pos]];
+			p_pos = pat_len - 1;
+		}
 	}
-	free(suffix_table);
-	return NOT_FOUND;
+	if (p_pos < 0)
+		return ++s_pos;
+	else
+		return NOT_FOUND;
 }
