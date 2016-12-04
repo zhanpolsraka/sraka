@@ -346,17 +346,18 @@ void get_token(Token *token)
 					editAtt(&token->attr, c);
 					state = R_DBNUM2;
 				}
-				else if (c >= 63)
+				else if (c == 59) {
 					return;
+				}
 				else
 				{
 					ungetc(c, file);
 					token->type = VALUE;
-					return;
+					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
 				}
 			break;
 
-			// desetinne cislo (1)
+			// desetinne cislo (2)
 			case R_DBNUM2:
 
 				if ((c == '+' || c == '-') && !isD)
@@ -438,7 +439,9 @@ void get_token(Token *token)
 			case DIV_OR_COMM:
 
 				if (c == '/') state = STR_COMMENT;
-				else if (c == '*') state = BL_COMMENT;
+				else if (c == '*') {
+					state = BL_COMMENT;
+				}
 				else
 				{
 					ungetc(c, file);
@@ -572,6 +575,7 @@ void get_token(Token *token)
 			case BL_COMMENT:
 				if (c == '*')
 					state = BL_COMMENT_2;
+
 			break;
 
 			// blokovy komentar (2)

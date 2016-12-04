@@ -1,0 +1,6 @@
+//2
+class Main(
+    static void run() {
+        String a = "Main ma kulate zavorky";
+    }
+)

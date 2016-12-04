@@ -1,0 +1,7 @@
+//2
+class Main{
+    static void run() {
+        // chybi zavorky.
+        int a = ifj16.readInt 1;
+    }
+}

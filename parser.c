@@ -418,7 +418,7 @@ void statement_list(Token *token)
 		if (!condition)
 		{
 			if (ret_val_type != VOID && !returns)
-				throw_err(UNINIT_ERROR, RET_VALUE, 0);
+				throw_err(SYN_ERROR, RET_VALUE, 0);
 			create_instance(NULL, INST_END_FUNCTION);
 			ret_val_type = VOID;
 			returns = false;

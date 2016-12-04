@@ -1,0 +1,11 @@
+//4
+class Main
+{
+	static void run()
+	{
+		String s;
+		s = 23;
+		return;
+
+	}
+}
