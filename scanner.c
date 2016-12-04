@@ -575,7 +575,8 @@ void get_token(Token *token)
 			case BL_COMMENT:
 				if (c == '*')
 					state = BL_COMMENT_2;
-
+				else if (c == EOF)
+					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
 			break;
 
 			// blokovy komentar (2)
