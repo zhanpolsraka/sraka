@@ -365,10 +365,10 @@ void get_token(Token *token)
 				{
 					ungetc(c, file);
 					token->type = VALUE;
-					return;
+					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
 				}
 			break;
-			// desetinne cislo (1)
+			// desetinne cislo (2)
 			case R_DBNUM2:
 
 				if ((c == '+' || c == '-') && !isD)
@@ -470,7 +470,9 @@ void get_token(Token *token)
 			case DIV_OR_COMM:
 
 				if (c == '/') state = STR_COMMENT;
-				else if (c == '*') state = BL_COMMENT;
+				else if (c == '*') {
+					state = BL_COMMENT;
+				}
 				else
 				{
 					ungetc(c, file);
@@ -604,6 +606,8 @@ void get_token(Token *token)
 			case BL_COMMENT:
 				if (c == '*')
 					state = BL_COMMENT_2;
+				else if (c == EOF)
+					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
 			break;
 
 			// blokovy komentar (2)
