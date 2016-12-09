@@ -61,7 +61,10 @@ bool isWr = false;
 // stav zapisu doubl s E/e
 bool isD = false;
 int esc = 0;
+<<<<<<< HEAD
 int count = 0;
+=======
+>>>>>>> c64f949c8614acae4752d00d5ef1fe3b7a04809f
 
 /*	Funkce zapisu symbolu do atributu tokenu	*/
 void editAtt(string *s1, char c)
@@ -71,7 +74,11 @@ void editAtt(string *s1, char c)
 		line++;
 		throw_err(INT_ERROR, ALL_STRUCT, 0);
 	}
+<<<<<<< HEAD
 	//printf("[%s]\n", s1->str);
+=======
+//	printf("[%s]\n", s1->str);
+>>>>>>> c64f949c8614acae4752d00d5ef1fe3b7a04809f
 }
 
 /*	Nastavi soubor se ktereho scanner bude cist lexemy		*/
@@ -90,6 +97,7 @@ void close_source()
 		fclose(file);
 }
 
+<<<<<<< HEAD
 // bool not_op(char c)
 // {
 // 	if (c != '+' && c != '-' &&
@@ -100,6 +108,17 @@ void close_source()
 // 	return true;
 // 	return false;
 // }
+=======
+bool not_op(char c)
+{
+	if (c != '+' && c != '-' &&
+	 	c != '*' && c != '/' &&
+		c != '<' && c != '>' &&
+		c != '=' && c != '!' && c != ';')
+	return true;
+	return false;
+}
+>>>>>>> c64f949c8614acae4752d00d5ef1fe3b7a04809f
 
 /*	Funce zpracovani lexemu		*/
 void get_token(Token *token)
@@ -367,20 +386,29 @@ void get_token(Token *token)
 					editAtt(&token->attr, c);
 					state = R_DBNUM2;
 				}
+<<<<<<< HEAD
 				else if(isalpha(c) || c == '(' || c == '.'||
 						c == '!' || c == '{' || c == '}'  || c == '?')
 				{
 					editAtt(&token->attr, c);
 					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
 				}
+=======
+				else if(not_op(c))
+					throw_err(LEX_ERROR, UNK_LEX, 0);
+>>>>>>> c64f949c8614acae4752d00d5ef1fe3b7a04809f
 				else
 				{
 					ungetc(c, file);
 					token->type = VALUE;
-					return;
+					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
 				}
 			break;
+<<<<<<< HEAD
 			// desetinne cislo (1)
+=======
+			// desetinne cislo (2)
+>>>>>>> c64f949c8614acae4752d00d5ef1fe3b7a04809f
 			case R_DBNUM2:
 
 				if ((c == '+' || c == '-') && !isD)
@@ -432,6 +460,10 @@ void get_token(Token *token)
 					if (c >= 48 && c <= 57)
 						state = ESCAPE;
 					ungetc(c, file);
+<<<<<<< HEAD
+=======
+					isWr = true;
+>>>>>>> c64f949c8614acae4752d00d5ef1fe3b7a04809f
 				}
 				else if ((c == '"' && isWr) || c != '"')
 				{
@@ -447,6 +479,7 @@ void get_token(Token *token)
 			break;
 
 			case ESCAPE:
+<<<<<<< HEAD
 
 				if (c >= 48 && c <= 57 && count < 4)
 				{
@@ -467,6 +500,21 @@ void get_token(Token *token)
 					editAtt(&token->attr, c);
 					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
 				}
+=======
+				if (c >= 48 && c <= 57 && ((esc / 100) == 0))
+				{
+					editAtt(&token->attr, c);
+					esc = (esc * 10) + (c - 48);
+				}
+				else if ((esc / 100) > 0 && esc >= 1 && esc <= 377)
+				{
+					ungetc(c, file);
+					esc = 0;
+					state = R_STRING;
+				}
+				else
+					throw_err(LEX_ERROR, UNK_LEX, 0);
+>>>>>>> c64f949c8614acae4752d00d5ef1fe3b7a04809f
 			break;
 
 			// symbol
@@ -493,7 +541,9 @@ void get_token(Token *token)
 			case DIV_OR_COMM:
 
 				if (c == '/') state = STR_COMMENT;
-				else if (c == '*') state = BL_COMMENT;
+				else if (c == '*') {
+					state = BL_COMMENT;
+				}
 				else
 				{
 					ungetc(c, file);
@@ -627,6 +677,8 @@ void get_token(Token *token)
 			case BL_COMMENT:
 				if (c == '*')
 					state = BL_COMMENT_2;
+				else if (c == EOF)
+					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
 			break;
 
 			// blokovy komentar (2)
