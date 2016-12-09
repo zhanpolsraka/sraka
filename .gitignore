@@ -1,4 +1,4 @@
 *.txt
 *.o
-tests/logs/*
+tests/*
 ifj16
