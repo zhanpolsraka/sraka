@@ -36,10 +36,12 @@
 
 void bin_to_hex(char *str)
 {
+    printf("\n%s\n", "Hexa");
     while (*str) {
         printf("%02x ", *str);
         str++;
     }
+    printf("\nEnd\n");
 }
 
 void activate_ride_symbol(char *string)
