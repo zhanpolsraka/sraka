@@ -1,8 +1,8 @@
 #include <stdbool.h>
-#include <stdarg.h>
 #include "str.h"
 #include "error.h"
 #include "buffer.h"
+
 //jednoducha knihovna pro praci s nekonecne dlouhymi retezci
 
 #define STR_LEN_INC 8
@@ -89,22 +89,6 @@ int strCopyString(string *s1, string *s2)
    return STR_SUCCESS;
 }
 
-int strCopyConstString(string *s1, char *s2)
-// prekopiruje retezec s2 do s1
-{
-   int newLength = strlen(s2);
-   if (newLength >= s1->allocSize)
-   {
-      // pamet nestaci, je potreba provest realokaci
-      if ((s1->str = (char*) realloc(s1->str, newLength + 1)) == NULL)
-         return STR_ERROR;
-      s1->allocSize = newLength + 1;
-   }
-   strcpy(s1->str, s2);
-   s1->length = newLength;
-   return STR_SUCCESS;
-}
-
 int strCmpString(string *s1, string *s2)
 // porovna oba retezce a vrati vysledek
 {
@@ -127,73 +111,4 @@ int strGetLength(string *s)
 // vrati delku daneho retezce
 {
    return s->length;
-}
-
-/**
-* TODO
-* Function returns:
-*   NULL if something went wrong.
-*   (string *) if everything is ok.
-**/
-string *new_string(char *init) {
-    string *new_str = malloc(sizeof(string));
-    if (new_str != NULL) {
-        if (strInit(new_str) == STR_ERROR) {
-            return NULL;
-        };
-    }
-    if (strCopyConstString(new_str, init) == STR_ERROR) {
-        return NULL;
-    }
-    return new_str;
-}
-
-/**
-* TODO
-*
-**/
-void del_strings(unsigned int count, ...) {
-    string *elem_to_delete;
-    va_list arg_ptr;
-
-    va_start(arg_ptr, count);
-    while (count--) {
-        elem_to_delete = va_arg(arg_ptr, string *);
-        strFree(elem_to_delete);
-        free(elem_to_delete);
-    }
-    va_end(arg_ptr);
-}
-
-/**
-* TODO
-**/
-int str_concat(string *s1, string *s2) {
-    //string *to_return = new_string("");
-    //if (to_return != NULL) {
-        //if (strCopyString(to_return, s1) != STR_ERROR) {
-            char *curr_char = s2->str;
-            while (*curr_char) {
-                if (strAddChar(s1, *curr_char++) == STR_ERROR) return 0;
-            }
-            //return to_return;
-        //}
-    //}
-    return 1;
-}
-/**
-* TODO
-**/
-int str_concat_const(string *s1, char *s2) {
-    //string *to_return = new_string("");
-    //if (to_return != NULL) {
-        //if (strCopyString(to_return, s1) != STR_ERROR) {
-            char *curr_char = s2;
-            while (*curr_char) {
-                if (strAddChar(s1, *curr_char++) == STR_ERROR) return 0;
-            }
-            //return to_return;
-        //}
-    //}
-    return 1;
 }

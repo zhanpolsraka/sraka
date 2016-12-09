@@ -61,6 +61,7 @@ bool isWr = false;
 // stav zapisu doubl s E/e
 bool isD = false;
 int esc = 0;
+int count = 0;
 
 /*	Funkce zapisu symbolu do atributu tokenu	*/
 void editAtt(string *s1, char c)
@@ -70,7 +71,7 @@ void editAtt(string *s1, char c)
 		line++;
 		throw_err(INT_ERROR, ALL_STRUCT, 0);
 	}
-//	printf("[%s]\n", s1->str);
+	//printf("[%s]\n", s1->str);
 }
 
 /*	Nastavi soubor se ktereho scanner bude cist lexemy		*/
@@ -89,15 +90,16 @@ void close_source()
 		fclose(file);
 }
 
-bool not_op(char c)
-{
-	if (c != '+' && c != '-' &&
-	 	c != '*' && c != '/' &&
-		c != '<' && c != '>' &&
-		c != '=' && c != '!' && c != ';')
-	return true;
-	return false;
-}
+// bool not_op(char c)
+// {
+// 	if (c != '+' && c != '-' &&
+// 	 	c != '*' && c != '/' &&
+// 		c != '<' && c != '>' &&
+// 		c != '=' && c != '!' &&
+// 		c != ';' && c != ' ')
+// 	return true;
+// 	return false;
+// }
 
 /*	Funce zpracovani lexemu		*/
 void get_token(Token *token)
@@ -339,6 +341,12 @@ void get_token(Token *token)
 					editAtt(&token->attr, c);
 					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
 				}
+				else if(isalpha(c) || c == '(' || c == '.'||
+						c == '!' || c == '{' || c == '}' || c == '?')
+				{
+					editAtt(&token->attr, c);
+					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
+				}
 				else
 				{
 					ungetc(c, file);
@@ -349,6 +357,7 @@ void get_token(Token *token)
 
 			// desetinne cislo (1)
 			case R_DBNUM:
+
 				if (c >= 48 && c <= 57)
 				{
 					editAtt(&token->attr, c);
@@ -358,8 +367,11 @@ void get_token(Token *token)
 					editAtt(&token->attr, c);
 					state = R_DBNUM2;
 				}
-				else if(not_op(c)) {
-					throw_err(LEX_ERROR, UNK_LEX, 0);
+				else if(isalpha(c) || c == '(' || c == '.'||
+						c == '!' || c == '{' || c == '}'  || c == '?')
+				{
+					editAtt(&token->attr, c);
+					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
 				}
 				else
 				{
@@ -368,7 +380,7 @@ void get_token(Token *token)
 					return;
 				}
 			break;
-			// desetinne cislo (2)
+			// desetinne cislo (1)
 			case R_DBNUM2:
 
 				if ((c == '+' || c == '-') && !isD)
@@ -384,6 +396,12 @@ void get_token(Token *token)
 				else if ((c >= 48 && c <= 57 && !isD) || c >= 63)
 				{
 					line++;
+					editAtt(&token->attr, c);
+					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
+				}
+				else if(isalpha(c) || c == '(' || c == '.'||
+						c == '!' || c == '{' || c == '}'  || c == '?')
+				{
 					editAtt(&token->attr, c);
 					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
 				}
@@ -404,7 +422,6 @@ void get_token(Token *token)
 			case R_STRING:
 				if (c == EOF)
 				{
-					line++;
 					editAtt(&token->attr, c);
 					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
 				}
@@ -415,7 +432,6 @@ void get_token(Token *token)
 					if (c >= 48 && c <= 57)
 						state = ESCAPE;
 					ungetc(c, file);
-					isWr = true;
 				}
 				else if ((c == '"' && isWr) || c != '"')
 				{
@@ -431,19 +447,26 @@ void get_token(Token *token)
 			break;
 
 			case ESCAPE:
-				if (c >= 48 && c <= 57 && ((esc / 100) == 0))
+
+				if (c >= 48 && c <= 57 && count < 4)
 				{
+					count++;
 					editAtt(&token->attr, c);
 					esc = (esc * 10) + (c - 48);
 				}
-				else if ((esc / 100) > 0 && esc >= 1 && esc <= 377)
+				// end of escape sequence
+				else if (count == 3 && esc >= 1 && esc <= 377)
 				{
 					ungetc(c, file);
 					esc = 0;
+					count = 0;
 					state = R_STRING;
 				}
 				else
-					throw_err(LEX_ERROR, UNK_LEX, 0);
+				{
+					editAtt(&token->attr, c);
+					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
+				}
 			break;
 
 			// symbol
@@ -470,9 +493,7 @@ void get_token(Token *token)
 			case DIV_OR_COMM:
 
 				if (c == '/') state = STR_COMMENT;
-				else if (c == '*') {
-					state = BL_COMMENT;
-				}
+				else if (c == '*') state = BL_COMMENT;
 				else
 				{
 					ungetc(c, file);
@@ -606,8 +627,6 @@ void get_token(Token *token)
 			case BL_COMMENT:
 				if (c == '*')
 					state = BL_COMMENT_2;
-				else if (c == EOF)
-					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
 			break;
 
 			// blokovy komentar (2)

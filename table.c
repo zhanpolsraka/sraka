@@ -35,7 +35,7 @@ void create_node(string *id, int type, int n_type, bool stat)
 		numb_arg = 0;
 	// nazev nesmi obsahovat tecku
 	if (strchr(strGetStr(id), '.') != NULL)
-		throw_err(SYN_ERROR, UNK_EXPR, id->str);
+		throw_err(LEX_ERROR, UNK_LEX, id->str);
 
 	// vytvorime novy uzel
 	tNode *new;
