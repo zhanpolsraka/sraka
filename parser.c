@@ -6,7 +6,7 @@
 /* Autor login:      	Ermak Aleksei		xermak00						*/
 /*                     	Khaitovich Anna		xkhait00						*/
 /*						Nesmelova Antonina	xnesmel00						*/
-/*						Fedorenko Oleg		xfedor00						*/
+/*						Fedorenko Oleh		xfedor07						*/
 /*						Fedin Evgenii		xfedin00						*/
 /* **************************************************************************/
 
@@ -347,6 +347,7 @@ void call_next_arg(Token *token)
 			(equal_str(help.identifier.str, "ifj16.compare") && arg != 2) ||
 			(equal_str(help.identifier.str, "ifj16.find") && arg != 2))
 			throw_err(SEM_TYPE_ERROR, CALL_FUNC_ARG, help.identifier.str);
+		arg = 0;
 		return;
 	}
 	else

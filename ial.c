@@ -1,7 +1,7 @@
 /* **************************************************************************/
 /* Projekt:             Implementace interpretu jazyka IFJ16				*/
 /* Predmet:             Formalni jazyky a prekladace (IFJ)					*/
-/* Soubor:              table.c  (Binarni strom, tabulka symbolu)			*/
+/* Soubor:              ial.c                           		   			*/
 /*																			*/
 /* Autor login:      	Ermak Aleksei		xermak00						*/
 /*                     	Khaitovich Anna		xkhait00						*/
@@ -10,11 +10,14 @@
 /*						Fedin Evgenii		xfedin00						*/
 /* **************************************************************************/
 
+/* Poznamka: Tento soubor nebude pri prekladu vyuzit */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
+#include <limits.h>
 
 #include "str.h"
 #include "scanner.h"
@@ -22,12 +25,20 @@
 #include "table.h"
 #include "buffer.h"
 
+#define ALPHABET_LEN (UCHAR_MAX + 1)
+#define NOT_FOUND -1
+#define max(a,b) ((a > b) ? a : b)
+#define SWAP(A, B) {char tmp = A; A = B; B = tmp;}
+
 // globalni ukazatel na strom
 tTree *tree;
 // pocet argumentu funkci
 int numb_arg = 0;
 
-/*	Vytvori, inicializuje a vlozi novy uzel do tabulky symbolu	*/
+/** Kopie
+* Original se nachazi ve souboru table.c na radku 31.
+* Vytvori, inicializuje a vlozi novy uzel do tabulky symbolu.
+*/
 void create_node(string *id, int type, int n_type, bool stat)
 {
 	// pokud pred operaci se zpracovavali argumenty, nastavime pocet argumentu na nulu
@@ -109,7 +120,10 @@ void create_node(string *id, int type, int n_type, bool stat)
 		add_node(new, begin);
 }
 
-/*	Hledani urciteho uzlu podle nazvu	*/
+/** Kopie
+* Original se nachazi ve souboru table.c na radku 131.
+* Hledani urciteho uzlu podle nazvu.
+*/
 tNode *get_node(string *key, int n_type, tNode *begin)
 {
 	if (tree->root == NULL)
@@ -147,7 +161,10 @@ tNode *get_node(string *key, int n_type, tNode *begin)
 	return NULL;
 }
 
-/*	Vlozi novy argument do tabulky symbolu	*/
+/** Kopie
+* Original se nachazi ve souboru table.c na radku 151.
+* Vlozi novy argument do tabulky symbolu.
+*/
 void create_arg(string *id, int type)
 {
 	// vytvorime uzel argumentu
@@ -178,7 +195,10 @@ void create_arg(string *id, int type)
 		add_node(arg, tree->active_func->variables);
 }
 
-/*	Funkce vyhledava argumenty funkci podle parametru	*/
+/** Kopie
+* Original se nachazi ve souboru table.c na radku 182.
+* Funkce vyhledava argumenty funkci podle parametru.
+*/
 tNode *get_argument(tNode *begin, int number)
 {
 	if (begin == NULL)
@@ -199,7 +219,10 @@ tNode *get_argument(tNode *begin, int number)
 	return found;
 }
 
-/*	Vlozi novy uzel do tabulky symbolu	*/
+/** Kopie
+* Original se nachazi ve souboru table.c na radku 203.
+* Vlozi novy uzel do tabulky symbolu.
+*/
 void add_node(tNode *new, tNode *begin)
 {
 	if (begin == NULL)
@@ -240,8 +263,10 @@ void add_node(tNode *new, tNode *begin)
 	else
 		throw_err(INT_ERROR, 0, 0);
 }
-
-/*	Funkce inicializuje novy strom */
+/** Kopie
+* Original se nachazi ve souboru table.c na radku 245.
+* Funkce inicializuje novy strom.
+*/
 void tree_init(tTree *new_tree)
 {
     // nastavime ukazatel na strom
@@ -250,8 +275,10 @@ void tree_init(tTree *new_tree)
 	tree->active_func = NULL;
 	tree->active_class = NULL;
 }
-
-/*	Zruseni tabulky		*/
+/** Kopie
+* Original se nachazi ve souboru table.c na radku 255.
+* Zruseni tabulky.
+*/
 void destroy_tree(tNode *begin)
 {
 	if (begin == NULL)
@@ -269,4 +296,76 @@ void destroy_tree(tNode *begin)
     // funkce je na terminalnim uzlu -> uvolnime jeho nazev a samotny uzel
 	strFree(&begin->key);
 	free_pointer(begin, true);
+}
+
+/** Kopie
+* Original se nachazi ve souboru built-in.c na radku 261.
+* F-ce pro razeni. Pouzit algoritmus Shell sort.
+* @param str    -> Retezec, ktery je treba seradit.
+* @return       -> Serazeny retezec.
+**/
+char* sort (char *str)
+{
+    int length = strlen(str);
+    for (int step = length/2; step > 0; step /= 2)
+    {
+		for (int j = step; j < length; j++)
+        {
+			for (int i = j - step; i >= 0 && str[i] > str[i + step]; i -= step)
+				SWAP(str[i], str[i + step]);
+		}
+	}
+    return str;
+}
+/** Kopie
+* Original se nachazi ve souboru built-in.c na radku 280.
+* Pomocna f-ce pro vypocet skoku.
+* @param stop_sbs   -> abeceda znaku.
+* @param pattern    -> vzorec, pro ktery je treba pocitat.
+* @return           -> nic.
+**/
+void create_stop_symbols(int *stop_sbs, char *pattern) {
+    for (int i = 0; i < ALPHABET_LEN; i++) {
+        stop_sbs[i] = strlen(pattern);
+    }
+    for (int i = 0; (unsigned)i < strlen(pattern) - 1; i++) {
+        stop_sbs[(unsigned char)pattern[i]] = i;
+    }
+}
+/** Kopie.
+* F-ce vyhledavani podretezce v retezci. Pouzit Boyer-Mooruv algoritmus.
+* Original se nachazi ve souboru built-in.c na radku 296.
+* @param s          -> Text, ve kterem se bude vyhledavat pattern.
+* @param pattern    -> Vzorec, ktery se bude vyhledavat.
+* @return           -> Vrati index prvniho vyskytu patternu nebo -1 pri neuspechu.
+**/
+int find(char *s, char *pattern)
+{
+	int s_len = strlen(s);
+	int pat_len = strlen(pattern);
+
+	if (pat_len == 0)
+		return 0;
+	if (pat_len > s_len || s_len <= 0 || pat_len < 0 || !s || !pattern)
+		return NOT_FOUND;
+
+    int stop_symbols[ALPHABET_LEN];
+	create_stop_symbols(stop_symbols, pattern);
+
+	int p_pos = pat_len - 1;
+	int s_pos = p_pos;
+	while (s_pos <= s_len && p_pos >= 0) {
+		if (s[s_pos] == pattern[p_pos]) {
+			p_pos--;
+			s_pos--;
+		}
+		else {
+            s_pos += stop_symbols[(unsigned char)s[s_pos]];
+			p_pos = pat_len - 1;
+		}
+	}
+	if (p_pos < 0)
+		return ++s_pos;
+	else
+		return NOT_FOUND;
 }

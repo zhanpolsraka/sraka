@@ -1,13 +1,13 @@
 /* **************************************************************************/
-/* Projekt:             Implementace interpretu jazyka IFJ16		    */
-/* Predmet:             Formalni jazyky a prekladace (IFJ)		    */
-/* Soubor:              interpret.c  (Interpretator)	       		    */
-/*									    */
-/* Autor login:      	Ermak Aleksei		xermak00		    */
-/*                     	Khaitovich Anna		xkhait00		    */
-/*			Nesmelova Antonina	xnesmel00		    */
-/*			Fedorenko Oleg		xfedor00		    */
-/*			Fedin Evgenii		xfedin00		    */
+/* Projekt:             Implementace interpretu jazyka IFJ16				*/
+/* Predmet:             Formalni jazyky a prekladace (IFJ)					*/
+/* Soubor:              interpret.c  (Interpretator)	       				*/
+/*																			*/
+/* Autor login:      	Ermak Aleksei		xermak00						*/
+/*                     	Khaitovich Anna		xkhait00						*/
+/*						Nesmelova Antonina	xnesmel00						*/
+/*						Fedorenko Oleh		xfedor07						*/
+/*						Fedin Evgenii		xfedin00						*/
 /* **************************************************************************/
 
 #include <stdio.h>
@@ -403,7 +403,7 @@ void control_instr(tExprStack *exp_st, tInstruction *instr, int *indx)
             {
                 /* if else-block behind of the if-block, set instr.index */
                 if (instr->addr2 != NULL)
-                    *indx = *(int *)instr->addr2;
+                    *indx = *(int *)instr->addr2 + 1;
                 /* else, set index of the end of if-block */
                 else
                     *indx = *(int *)instr->addr1;
@@ -418,7 +418,7 @@ void control_instr(tExprStack *exp_st, tInstruction *instr, int *indx)
             /* if if-block has been processed succesfull -> skip else-block */
             if (if_succ == numb_block)
                 *indx = *(int *)instr->addr1;
-            if_succ++;
+            if_succ = numb_block;
         break;
 
         /* end of the block */
@@ -431,9 +431,7 @@ void control_instr(tExprStack *exp_st, tInstruction *instr, int *indx)
             }
             else
             {
-                if (if_succ)
                     if_succ--;
-                if (numb_block)
                     numb_block--;
             }
         break;
