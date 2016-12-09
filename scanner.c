@@ -50,6 +50,7 @@ typedef enum{
     STR_COMMENT,	// retezcovy komentar 						(15)
     BL_COMMENT,		// blokovy komentar 						(16)
     BL_COMMENT_2,	// konec blokoveho komentare				(17)
+	ESCAPE
 
 }sState;
 
@@ -59,6 +60,7 @@ FILE *file = NULL;
 bool isWr = false;
 // stav zapisu doubl s E/e
 bool isD = false;
+int esc = 0;
 
 /*	Funkce zapisu symbolu do atributu tokenu	*/
 void editAtt(string *s1, char c)
@@ -68,6 +70,7 @@ void editAtt(string *s1, char c)
 		line++;
 		throw_err(INT_ERROR, ALL_STRUCT, 0);
 	}
+//	printf("[%s]\n", s1->str);
 }
 
 /*	Nastavi soubor se ktereho scanner bude cist lexemy		*/
@@ -84,6 +87,16 @@ void close_source()
 {
 	if (file)
 		fclose(file);
+}
+
+bool not_op(char c)
+{
+	if (c != '+' && c != '-' &&
+	 	c != '*' && c != '/' &&
+		c != '<' && c != '>' &&
+		c != '=' && c != '!' && c != ';')
+	return true;
+	return false;
 }
 
 /*	Funce zpracovani lexemu		*/
@@ -346,8 +359,8 @@ void get_token(Token *token)
 					editAtt(&token->attr, c);
 					state = R_DBNUM2;
 				}
-				else if (c >= 63)
-					return;
+				else if(not_op(c))
+					throw_err(LEX_ERROR, UNK_LEX, 0);
 				else
 				{
 					ungetc(c, file);
@@ -355,7 +368,6 @@ void get_token(Token *token)
 					return;
 				}
 			break;
-
 			// desetinne cislo (1)
 			case R_DBNUM2:
 
@@ -399,6 +411,10 @@ void get_token(Token *token)
 				else if (c == '\\')
 				{
 					editAtt(&token->attr, c);
+					c = getc(file);
+					if (c >= 48 && c <= 57)
+						state = ESCAPE;
+					ungetc(c, file);
 					isWr = true;
 				}
 				else if ((c == '"' && isWr) || c != '"')
@@ -412,6 +428,22 @@ void get_token(Token *token)
 					token->type = VALUE;
 					return;
 				}
+			break;
+
+			case ESCAPE:
+				if (c >= 48 && c <= 57 && ((esc / 100) == 0))
+				{
+					editAtt(&token->attr, c);
+					esc = (esc * 10) + (c - 48);
+				}
+				else if ((esc / 100) > 0 && esc >= 1 && esc <= 377)
+				{
+					ungetc(c, file);
+					esc = 0;
+					state = R_STRING;
+				}
+				else
+					throw_err(LEX_ERROR, UNK_LEX, 0);
 			break;
 
 			// symbol
