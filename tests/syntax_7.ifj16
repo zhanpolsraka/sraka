@@ -1,0 +1,7 @@
+//2
+class Main() {
+    // return type required.
+    static run() {
+        ;
+    }
+}

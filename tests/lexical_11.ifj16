@@ -1,0 +1,6 @@
+//1
+class Main{
+	static void run(){
+	double x = 3.3?;
+	}
+}
