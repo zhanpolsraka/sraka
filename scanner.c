@@ -349,7 +349,6 @@ void get_token(Token *token)
 
 			// desetinne cislo (1)
 			case R_DBNUM:
-
 				if (c >= 48 && c <= 57)
 				{
 					editAtt(&token->attr, c);
@@ -359,13 +358,14 @@ void get_token(Token *token)
 					editAtt(&token->attr, c);
 					state = R_DBNUM2;
 				}
-				else if(not_op(c))
+				else if(not_op(c)) {
 					throw_err(LEX_ERROR, UNK_LEX, 0);
+				}
 				else
 				{
 					ungetc(c, file);
 					token->type = VALUE;
-					throw_err(LEX_ERROR, UNK_LEX, token->attr.str);
+					return;
 				}
 			break;
 			// desetinne cislo (2)
