@@ -77,6 +77,8 @@ void activate_ride_symbol(char *string)
             escape[3] = 0;
             unsigned oct;
             sscanf(escape, "%o", &oct);
+            if (oct < 001 || oct > 377)
+                throw_err(LEX_ERROR, UNK_LEX, 0);
             string[0] = oct;
             count = 3;
         }
@@ -123,8 +125,14 @@ void read_int(tExprStack *st)
     mark_mem(new);
     new->can_free = true;
     new->type = INT;
-    if ((scanf("%d", &new->value.integer)) <= 0)
+
+    char buff[15];
+    char *str;
+    str = fgets(buff, sizeof(buff), stdin);
+
+    if ((sscanf(str, "%d", &new->value.integer)) <= 0)
         throw_err(READ_ERROR, 0, 0);
+
     stack_expr_push(st, new);
 }
 
@@ -136,8 +144,14 @@ void read_double(tExprStack *st)
     mark_mem(new);
     new->can_free = true;
     new->type = DOUBLE;
-    if ((scanf("%lf", &new->value.real)) <= 0)
+
+    char buff[15];
+    char *str;
+    str = fgets(buff, sizeof(buff), stdin);
+
+    if ((sscanf(str, "%lf", &new->value.real)) <= 0)
         throw_err(READ_ERROR, 0, 0);
+
     stack_expr_push(st, new);
 }
 
@@ -250,7 +264,6 @@ void compare(tExprStack *st)
         strFree(&s1->value.str);
     if (s2->can_free)
         strFree(&s2->value.str);
-
     stack_expr_push(st, new);
 }
 

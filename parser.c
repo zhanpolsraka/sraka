@@ -347,6 +347,7 @@ void call_next_arg(Token *token)
 			(equal_str(help.identifier.str, "ifj16.compare") && arg != 2) ||
 			(equal_str(help.identifier.str, "ifj16.find") && arg != 2))
 			throw_err(SEM_TYPE_ERROR, CALL_FUNC_ARG, help.identifier.str);
+		arg = 0;
 		return;
 	}
 	else
@@ -501,7 +502,7 @@ void ride_struct(Token *token)
 		get_token(token);
 		if ((token->type != SEMICOLON && ret_val_type == VOID) ||
 			(token->type == SEMICOLON && ret_val_type != VOID))
-			throw_err(SEM_ERROR, RET_VALUE, 0);
+			throw_err(UNINIT_ERROR, RET_VALUE, 0);
 		go_back(token);
 		returns = true;
         expression(token, NULL);
