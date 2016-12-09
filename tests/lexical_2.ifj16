@@ -1,5 +1,0 @@
-//1
-class Main{
-	static String str = "Toto je co? ->\400";
-	static void run(){}
-}

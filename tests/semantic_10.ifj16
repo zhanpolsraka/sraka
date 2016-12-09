@@ -1,9 +1,0 @@
-//3
-//Chybny strednik
-class Main
-{
-	static void run()
-	{
-		return
-	}
-}

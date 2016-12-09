@@ -1,9 +1,0 @@
-//1
-//Chybnost' uvazovek - lexicka chyba 1
-class Main{
-	static String str = "Hello, FIT
-	;
-	static void run(){
-
-	}
-}

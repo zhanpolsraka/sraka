@@ -1,9 +1,0 @@
-//1
-class Main{
-	static void run(){
-		int x = 1?;
-	}
-}
-/*
-remove line 9 and run test
-*/
