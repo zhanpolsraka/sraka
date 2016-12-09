@@ -6,7 +6,7 @@
 /* Autor login:      	Ermak Aleksei		xermak00						*/
 /*                     	Khaitovich Anna		xkhait00						*/
 /*						Nesmelova Antonina	xnesmel00						*/
-/*						Fedorenko Oleh		xfedor07						*/
+/*						Fedorenko Oleg		xfedor00						*/
 /*						Fedin Evgenii		xfedin00						*/
 /* **************************************************************************/
 
@@ -329,7 +329,9 @@ void exec_instructions(tInstrStack *st, tExprStack *exp_st, int indx)
             new->can_free = true;
             new->type = STRING;
             strInit(&new->value.str);
-            strWriteStr(&new->value.str, sort(pop->value.str.str));
+
+            strWriteStr(&new->value.str, pop->value.str.str);
+            sort(new->value.str.str);
             stack_expr_push(exp_st, new);
         }
 
@@ -431,8 +433,8 @@ void control_instr(tExprStack *exp_st, tInstruction *instr, int *indx)
             }
             else
             {
-                    if_succ--;
-                    numb_block--;
+                if_succ--;
+                numb_block--;
             }
         break;
 
